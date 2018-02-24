@@ -1,35 +1,23 @@
 import React, { Component } from 'react'
+import { Provider, connect } from 'react-redux'
+import { BrowserRouter as Router, Route } from 'react-router-dom'
+import configureStore from './Store'
 import logo from './logo.svg'
+import Forum from './ForumView'
+import Clock from './Clock'
 import './App.css'
 
-class App extends Component {
+const store = configureStore()
 
-  constructor(props) {
-    const meeting = {
-      items: [
-      {id: 1, title: 'treasurer\'s report'},
-      {id: 6, title: 'secretarie\'s report'},
-      {id: 23, title: 'convenors\'s report'},
-      {id: 103, title: 'directors\' report'},
-      ]
-    }
-    super(props)
-    this.state = {
-      meeting: meeting,
-    }
-    this.handleNewItem = this.handleNewItem.bind(this)
-  }
+const Root = () => (
+  <Provider store={store}>
+    <Router>
+      <Route path="/" component={App} />
+    </Router>
+  </Provider>
+)
 
-  handleNewItem(item) {
-    const addItem = (meeting, item) => {
-      meeting.items.push(item)
-      console.log('meeting', meeting)
-      return meeting
-    }
-    this.setState(prevState => ({
-      meeting: addItem(prevState.meeting, item)
-    }))
-  }
+class AppRaw extends Component {
 
   render() {
     return (
@@ -39,10 +27,9 @@ class App extends Component {
           <h1 className="App-title">Welcome to GOFF</h1>
         </header>
         <p className="App-intro">
-          To get started, edit <code>src/App.js</code> and save to reload.
+          Experiments facilitating decisions.
         </p>
-        <AgendaItems items={this.state.meeting.items} />
-        <NewItem handleNewItem={this.handleNewItem} />
+        <Forum />
         <Clock />
         <a href="https://github.com/ErichBSchulz/goff">Repo</a>
         <a href="https://cloud.digitalocean.com/droplets?i=d0d755">Server</a>
@@ -52,118 +39,25 @@ class App extends Component {
   }
 }
 
-class AgendaItems extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      items: props.items,
-    }
-  }
-
-  render() {
-    const items = this.state.items
-    const listItems = items.map((item) =>
-      <li key={item.id}>{item.title}</li>)
-    return <ul>{listItems}</ul>
+// Returns a plain object, which is merged into component’s props
+// If not subscribing to store updates, pass null instead of function
+// Can take an optional second param [ownProps]
+const mapStateToProps = state => {
+  return { // props here become props in the component
+    users: state.users,
+    forum: state.forum,
+    forums: state.forums,
+    // todos: getVisibleTodos(state.todos, state.visibilityFilter)
   }
 }
-
-class NewItem extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      isGoing: true,
-      numberOfGuests: 2
-    }
-    this.handleInputChange = this.handleInputChange.bind(this)
-    this.handleSubmit = this.handleSubmit.bind(this)
-  }
-
-  handleInputChange(event) {
-    const target = event.target
-    const value = target.type === 'checkbox' ? target.checked : target.value
-    this.setState({[target.name]: value})
-  }
-
-  handleSubmit(event) {
-    this.props.handleNewItem({id:5, title: 'bless you'})
-    event.preventDefault()
-  }
-
-  render() {
-    return (
-      <form onSubmit={this.handleSubmit}>
-        <label>
-          Is going:
-          <input
-            name="isGoing"
-            type="checkbox"
-            checked={this.state.isGoing}
-            onChange={this.handleInputChange} />
-        </label>
-        <br />
-        <label>
-          Number of guests:
-          <input
-            name="numberOfGuests"
-            type="number"
-            value={this.state.numberOfGuests}
-            onChange={this.handleInputChange} />
-        </label>
-        <input type="submit" value="Submit Item" />
-      </form>
-    )
+ 
+// Can take an optional second param [ownProps]
+const mapDispatchToProps = dispatch => {
+  return { // elements here become props in the component
+    // myHandler: id => { dispatch(myActionCreator(id)) }
   }
 }
+ 
+const App = connect(mapStateToProps, mapDispatchToProps)(AppRaw)
 
-
-class Clock extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      date: new Date(),
-      votes: 1
-    }
-    this.upVote = this.upVote.bind(this)
-    this.downVote = this.downVote.bind(this)
-  }
-
-  componentDidMount() {
-    this.timerID = setInterval(
-      () => this.tick(),
-      10000
-    )
-  }
-
-  componentWillUnmount() {
-    clearInterval(this.timerID)
-  }
-
-  tick() {
-    this.setState({ // do a shallow merge
-      date: new Date()
-    })
-  }
-
-  upVote() { this.vote(1) }
-  downVote() { this.vote(-1) }
-
-  vote(n) {
-    this.setState(prevState => ({
-      votes: prevState.votes + n
-    }))
-  }
-
-  render() {
-    return (
-        <h6>
-        <button onClick={this.upVote}> +1 </button>
-        <button onClick={this.downVote}> -1 </button>
-        {this.state.votes} votes as at
-        {this.state.date.toLocaleTimeString()}.
-        </h6>
-    )
-  }
-}
-
-export default App
+export default Root
