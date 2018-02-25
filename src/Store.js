@@ -1,14 +1,6 @@
 import { combineReducers, createStore, applyMiddleware } from 'redux'
 import thunk from 'redux-thunk'
-
-import uuidv3 from 'uuid/v3'
-const uuidNamespace = uuidv3.DNS
-const uuid = (seed) => (uuidv3(seed, uuidNamespace))
-// decorate an object with a UUID based on its title
-const addId = (obj) => {
-  obj.id = uuid(obj.title)
-  return obj
-}
+import utils from './Utils'
 
 const actions = {
   USER: {
@@ -28,8 +20,18 @@ export const actionCreators = {
 
 const testState = () => {
   const title = "Fish Friends AGM"
-  const forum = addId({
-    title: title,
+  const members = [
+    {id: 2342, title: 'Abby', status: "present", proxyTo: [122445, 250851]},
+    {id: 62345, title: 'Bill', status: "present", proxyTo: [2342, 122445, 250851]},
+    {id: 97652, title: 'Charlie', status: "present", proxyTo: [2342, 122445, 250851]},
+    {id: 122445, title: 'Doug', status: "absent", proxyTo: [2342, 250851]},
+    {id: 244085, title: 'Enzo', status: "absent", proxyTo: [2342, 122445, 250851]},
+    {id: 240851, title: 'Fill', status: "absent",},
+    {id: 240853, title: 'Gina', status: "present", proxyTo: [2342, 122445, 250851]},
+    {id: 240854, title: 'Gina', status: "present", proxyTo: [250851]},
+  ]
+  const forum = utils.addId({
+    title, members,
     items: [
     {id: 2, title: 'Treasurer\'s report'},
     {id: 6, title: 'secretarie\'s report'},
@@ -37,14 +39,17 @@ const testState = () => {
     {id: 103, title: 'directors\' report'},
     ]
   })
-  const users = [
-    {id: 2342, title: 'Abby'},
-    {id: 62345, title: 'Bill'},
-  ]
   return {
-    users: users,
     forum: forum,
     forums: [],
+    session: {
+      device: "Dougs's tablet",
+      users: [
+        {id: 2342, title: 'Abby', localStatus: 'active', },
+        {id: 97652, title: 'Charlie', localStatus: 'active',},
+        {id: 1224445, title: 'Doug', localStatus: 'connected', localOwner: true },
+        ]
+    },
   }
 }
 
@@ -77,7 +82,7 @@ function forum(state = {}, action) {
   console.log('action', action)
   switch (action.type) {
     case actions.FORUM.ADDITEM: {
-      let items = state.items.concat([addId({title: action.payload.title})])
+      let items = state.items.concat([action.payload])
         console.log('items', items)
       let newState = {...state, items}
       console.log('newState', newState)

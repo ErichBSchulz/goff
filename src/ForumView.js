@@ -2,6 +2,10 @@ import React, { Component } from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { actionCreators  } from './Store'
+import utils from './Utils'
+import List, { ListItem, ListItemSecondaryAction, ListItemText } from 'material-ui/List';
+import Checkbox from 'material-ui/Checkbox';
+
 
 class ForumRaw extends Component {
 
@@ -41,12 +45,12 @@ const Forum = connect(mapStateToProps)(ForumRaw)
 class AgendaItems extends React.Component {
 
   render() {
-    console.log('rendering sub')
     const items = this.props.items
-    console.log('items', items)
     const listItems = items.map((item) =>
-      <li key={item.id}>{item.title}</li>)
-    return <ul>{listItems}</ul>
+      <ListItem button key={item.id}>
+        <ListItemText primary={item.title} />
+      </ListItem>)
+    return <List>{listItems}</List>
   }
 }
 
@@ -54,8 +58,8 @@ class NewItem extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      isGoing: true,
-      title: 2
+      urgent: false,
+      title: "My item"
     }
     this.handleInputChange = this.handleInputChange.bind(this)
     this.handleSubmit = this.handleSubmit.bind(this)
@@ -69,26 +73,28 @@ class NewItem extends React.Component {
 
   handleSubmit(event) {
     console.log('this.props', this.props)
-    const title = 'bless you'
-    this.props.addItem({
-      title: title})
+    const title = this.state.title
+    this.props.addItem(utils.addId({
+      title: title,
+      urgent: this.state.urgent,
+    }))
     event.preventDefault()
   }
 
   render() {
     return (
       <form onSubmit={this.handleSubmit}>
+
+      <i class="material-icons md-18">face</i>
         <label>
-          Is going:
-          <input
-            name="isGoing"
-            type="checkbox"
-            checked={this.state.isGoing}
+          Urgent:
+          <input name="urgent" type="checkbox"
+            checked={this.state.urgent}
             onChange={this.handleInputChange} />
         </label>
         <br />
         <label>
-          Number of guests:
+          Title:
           <input
             name="title"
             type="text"
