@@ -1,6 +1,6 @@
 import { combineReducers, createStore, applyMiddleware } from 'redux'
 import thunk from 'redux-thunk'
-import utils from './Utils'
+import Utils from './Utils'
 
 const actions = {
   USER: {
@@ -20,7 +20,7 @@ export const actionCreators = {
 
 const testState = () => {
   const title = "Fish Friends AGM"
-  const members = [
+  const members = Utils.allocateProxies([
     {id: 2342, title: 'Abby', status: "present", proxyTo: [122445, 250851]},
     {id: 62345, title: 'Bill', status: "present", proxyTo: [2342, 122445, 250851]},
     {id: 97652, title: 'Charlie', status: "present", proxyTo: [2342, 122445, 250851]},
@@ -29,8 +29,8 @@ const testState = () => {
     {id: 240851, title: 'Fill', status: "absent",},
     {id: 240853, title: 'Gina', status: "present", proxyTo: [2342, 122445, 250851]},
     {id: 240854, title: 'Gina', status: "present", proxyTo: [250851]},
-  ]
-  const forum = utils.addId({
+  ])
+  const forum = Utils.addId({
     title, members,
     items: [
     {id: 2, title: 'Treasurer\'s report'},
@@ -45,9 +45,9 @@ const testState = () => {
     session: {
       device: "Dougs's tablet",
       users: [
-        {id: 2342, title: 'Abby', localStatus: 'active', },
-        {id: 97652, title: 'Charlie', localStatus: 'active',},
-        {id: 1224445, title: 'Doug', localStatus: 'connected', localOwner: true },
+        {id: 2342, localStatus: 'active', },
+        {id: 97652, localStatus: 'active',},
+        {id: 122445, localStatus: 'connected', localOwner: true },
         ]
     },
   }
