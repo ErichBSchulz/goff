@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import Button from 'material-ui/Button'
-import List, { ListItem, ListItemIcon, ListItemText } from 'material-ui/List';
 import BuildIcon from 'material-ui-icons/Build';
 import Menu, { MenuItem } from 'material-ui/Menu'
 
@@ -24,7 +23,13 @@ class Toolbox extends Component {
           href: "https://material.io/icons/" },
         {
           title: "Components",
-          href: "https://material-ui-next.com/getting-started/supported-components/" }
+          href: "https://material-ui-next.com/getting-started/supported-components/" },
+        {
+          title: "Redux",
+          href: "https://redux.js.org/basics" },
+        {
+          title: "Saga",
+          href: "https://redux-saga.js.org/docs/basics/index.html" }
      ]
     }
   }
@@ -40,17 +45,6 @@ class Toolbox extends Component {
     const { anchorEl } = this.state;
 
     return (
-      <div >
-      <List component="nav">
-        {this.state.links.map(item => <a href={item.href}>
-          <ListItem button key={item.title} >
-            <ListItemIcon>
-              <BuildIcon />
-            </ListItemIcon>
-          <ListItemText primary={item.title} />
-        </ListItem>
-        </a>)}
-      </List>
       <div>
         <Button size="small" variant="raised" color="primary"
           aria-owns={anchorEl ? 'simple-menu' : null}
@@ -60,7 +54,6 @@ class Toolbox extends Component {
           <BuildIcon />
           Tools
         </Button>
-
         <Menu
           id="simple-menu"
           anchorEl={anchorEl}
@@ -73,7 +66,6 @@ class Toolbox extends Component {
             </MenuItem>
           )}
         </Menu>
-      </div>
       </div>
     )
   }

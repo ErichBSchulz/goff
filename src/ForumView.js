@@ -4,23 +4,24 @@ import { connect } from 'react-redux'
 import { actionCreators  } from './Store'
 import utils from './Utils'
 import List, { ListItem, ListItemSecondaryAction, ListItemText } from 'material-ui/List';
-import Checkbox from 'material-ui/Checkbox';
+import IconButton from 'material-ui/IconButton';
+import DoneIcon from 'material-ui-icons/Done';
+import ClearIcon from 'material-ui-icons/Clear';
+import ThumbDownIcon from 'material-ui-icons/ThumbDown';
+import ThumbUpIcon from 'material-ui-icons/ThumbUp';
 
 
 class ForumRaw extends Component {
 
   constructor(props) {
-    console.log('props', props)
     super(props)
     const {dispatch} = props;
     // create bound versions of functions so can
     // pass them down to our child later.
     this.actionCreators = bindActionCreators(actionCreators, dispatch)
-    console.log('this.actionCreators ', this.actionCreators )
   }
 
   render() {
-    console.log('rendering main')
     console.log('this.props.forum.items', this.props.forum.items)
     return (
       <div>
@@ -44,10 +45,35 @@ const Forum = connect(mapStateToProps)(ForumRaw)
 
 class AgendaItems extends React.Component {
 
+  constructor(props) {
+    super(props)
+    console.log('props', props)
+  }
+
+  handleAction = (button, item) => {
+    console.log('button, item', button, item)
+    this.assign
+  }
+
   render() {
+    const actionButtons = [
+      {key: 'support', icon: <DoneIcon />, atribute: 'support', value: +1},
+      {key: 'oppose', icon: <ClearIcon />, atribute: 'support', value: -1},
+      {key: 'up', icon: <ThumbUpIcon />, atribute: 'useful', value: +1},
+      {key: 'down', icon: <ThumbDownIcon />, atribute: 'useful', value: -1},
+    ]
     const items = this.props.items
     const listItems = items.map((item) =>
       <ListItem button key={item.id}>
+        {actionButtons.map(button =>
+          <IconButton
+            onClick={() => this.handleAction(button, item)}
+            key={button.key}
+            aria-label={button.key}
+            color="primary">
+            {button.icon}
+          </IconButton>
+        )}
         <ListItemText primary={item.title} />
       </ListItem>)
     return <List>{listItems}</List>
@@ -85,7 +111,7 @@ class NewItem extends React.Component {
     return (
       <form onSubmit={this.handleSubmit}>
 
-      <i class="material-icons md-18">face</i>
+      <i className="material-icons md-18">face</i>
         <label>
           Urgent:
           <input name="urgent" type="checkbox"

@@ -2,13 +2,14 @@ import React, { Component } from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { actionCreators  } from './Store'
-import utils from './Utils'
 import AppBar from 'material-ui/AppBar'
 import Toolbar from 'material-ui/Toolbar'
 import Typography from 'material-ui/Typography'
 import Button from 'material-ui/Button'
+import Badge from 'material-ui/Badge';
 import IconButton from 'material-ui/IconButton'
 import MenuIcon from 'material-ui-icons/Menu'
+import Icon from 'material-ui/Icon';
 // import Checkbox from 'material-ui/Checkbox'
 
 
@@ -21,8 +22,10 @@ class AppBarRaw extends Component {
     // pass them down to our child later.
     this.actionCreators = bindActionCreators(actionCreators, dispatch)
   }
-
   render() {
+    const ac = this.actionCreators
+    const tip = user =>
+      `${user.title} is recored as ${user.present ? 'here' : 'absent'} and has a local status of ${user.localStatus}`
     return (
       <AppBar position="fixed">
       <Toolbar>
@@ -32,7 +35,24 @@ class AppBarRaw extends Component {
         <Typography variant="title" color="inherit" >
           {this.props.forum.title}
         </Typography>
-        <Button color="inherit">Login</Button>
+        {this.props.session.users.map(user =>
+          <Badge
+            key={user.id}
+            color={user.localStatus === "active" ? "secondary" : "default"}
+            badgeContent={user.votingFor.length}
+            >
+            <Button color="inherit"
+            onClick={e => ac.toggleUserLocalStatus(user)}
+            title={tip(user)}
+            >
+              {user.title}
+              {user.localStatus === 'active'
+                ? <Icon color="action">add_circle</Icon>
+                : <Icon color="disabled">remove_circle_outline</Icon>
+              }
+            </Button>
+          </Badge>
+        )}
       </Toolbar>
     </AppBar>
     )

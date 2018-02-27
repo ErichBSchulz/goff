@@ -1,35 +1,44 @@
 import { combineReducers, createStore, applyMiddleware } from 'redux'
-import thunk from 'redux-thunk'
+//import thunk from 'redux-thunk'
 import Utils from './Utils'
 
 const actions = {
   USER: {
     JOIN: 'user/join',
     LEAVE: 'user/leave',
+    TOGGLELOCALSTATUS: 'user/togglelocalstatus',
   },
   FORUM: {
     ADDITEM: 'item/create',
-    ASSERT: 'item/assert', // asserts a position (helpful, unhelpful, agree, disagree)
+    ASSERTITEM: 'item/assert', // asserts a position (helpful, unhelpful, agree, disagree)
   },
 }
 
 export const actionCreators = {
+  toggleUserLocalStatus: (payload) => (
+                             {type: actions.USER.TOGGLELOCALSTATUS, payload}),
   addItem: (payload) => ({type: actions.FORUM.ADDITEM, payload}),
-  assert: (payload) => ({type: actions.FORUM.ASSERT, payload}),
+  assertItem: (payload) => ({type: actions.FORUM.ASSERTITEM, payload}),
 }
 
 const testState = () => {
   const title = "Fish Friends AGM"
   const members = Utils.allocateProxies([
-    {id: 2342, title: 'Abby', status: "present", proxyTo: [122445, 250851]},
-    {id: 62345, title: 'Bill', status: "present", proxyTo: [2342, 122445, 250851]},
-    {id: 97652, title: 'Charlie', status: "present", proxyTo: [2342, 122445, 250851]},
-    {id: 122445, title: 'Doug', status: "absent", proxyTo: [2342, 250851]},
-    {id: 244085, title: 'Enzo', status: "absent", proxyTo: [2342, 122445, 250851]},
-    {id: 240851, title: 'Fill', status: "absent",},
-    {id: 240853, title: 'Gina', status: "present", proxyTo: [2342, 122445, 250851]},
-    {id: 240854, title: 'Gina', status: "present", proxyTo: [250851]},
+    {id: 2342, title: 'Abby', present: true, proxyTo: [122445, 250851]},
+    {id: 62345, title: 'Bill', present: true, proxyTo: [2342, 122445, 250851]},
+    {id: 97652, title: 'Charlie', present: true, proxyTo: [2342, 122445, 250851]},
+    {id: 122445, title: 'Doug', present: false, proxyTo: [2342, 250851]},
+    {id: 244085, title: 'Enzo', present: false, proxyTo: [2342, 122445, 250851]},
+    {id: 240851, title: 'Fill', present: false,},
+    {id: 240853, title: 'Gina', present: true, proxyTo: [2342, 122445, 250851]},
+    {id: 240854, title: 'Gina', present: true, proxyTo: [250851]},
   ])
+  const users = Utils.joinById([
+        {id: 2342, localStatus: 'active', },
+        {id: 97652, localStatus: 'active',},
+        {id: 122445, localStatus: 'connected', localOwner: true },
+        ], members)
+  console.log('users', users)
   const forum = Utils.addId({
     title, members,
     items: [
@@ -40,16 +49,9 @@ const testState = () => {
     ]
   })
   return {
-    forum: forum,
+    forum,
     forums: [],
-    session: {
-      device: "Dougs's tablet",
-      users: [
-        {id: 2342, localStatus: 'active', },
-        {id: 97652, localStatus: 'active',},
-        {id: 122445, localStatus: 'connected', localOwner: true },
-        ]
-    },
+    session: {device: "Dougs's tablet", users},
   }
 }
 
@@ -60,17 +62,25 @@ const testState = () => {
  * Call non-pure functions, e.g. Date.now() or Math.random().
  */
 // sub reducer
-function users(state = [], action) {
+function session(state = [], action) {
+  console.log('state', state)
+  console.log('action', action)
   switch (action.type) {
-    case 'ADD_TODO':
-      return state.concat([{ text: action.text, completed: false }])
-    case 'TOGGLE_TODO':
-      return state.map(
-        (todo, index) =>
-          action.index === index
-            ? { text: todo.text, completed: !todo.completed }
-            : todo
-      )
+    case actions.USER.TOGGLELOCALSTATUS: {
+      const toggle = state => state === 'active' ? 'connected' : 'active'
+      const users = state.users.map(
+        user =>
+          // todo extract out this function that modifies single value in collection
+          (user.id === action.payload.id
+          ? {...user, localStatus: toggle(user.localStatus)}
+          : user)
+        )
+      const newState = {...state, users }
+      console.log('newState', newState)
+      return newState
+    }
+    case 'blah':
+      return state
     default:
       return state
   }
@@ -78,14 +88,10 @@ function users(state = [], action) {
 
 // sub reducer
 function forum(state = {}, action) {
-  console.log('state', state)
-  console.log('action', action)
   switch (action.type) {
     case actions.FORUM.ADDITEM: {
       let items = state.items.concat([action.payload])
-        console.log('items', items)
       let newState = {...state, items}
-      console.log('newState', newState)
       return newState
     }
     case 'ADD_TODO':
@@ -119,12 +125,12 @@ function forums(state = [], action) {
   }
 }
 
-const reducer = combineReducers({ users, forum, forums })
+const reducer = combineReducers({ session, forum, forums })
 
 export default function configureStore() {
   return createStore(
     reducer,
     testState(),
-    applyMiddleware(thunk)
+//    applyMiddleware(thunk)
   )
 }
