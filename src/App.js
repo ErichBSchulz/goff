@@ -2,8 +2,9 @@ import React, { Component } from 'react'
 import { Provider, connect } from 'react-redux'
 import { BrowserRouter as Router, Route } from 'react-router-dom'
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+import Paper from 'material-ui/Paper';
+import Typography from 'material-ui/Typography';
 import configureStore from './Store'
-import logo from './logo.svg'
 import Forum from './ForumView'
 import Clock from './Clock'
 import AppBar from './AppBarView'
@@ -28,16 +29,21 @@ class AppRaw extends Component {
     return (
       <div className="App">
         <AppBar />
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">{this.props.forum.title}</h1>
-        </header>
-        <p className="App-intro">
-          Experiments facilitating decisions.
-        </p>
-        <Forum />
-        <Clock />
-        <Toolbox />
+        <div className="App-body">
+          <Paper elevation={4}>
+            <Forum />
+          </Paper>
+          <Toolbox />
+          <Clock />
+          <Paper elevation={4}>
+            <Typography variant="headline" component="h3">
+              This is a sheet of paper.
+            </Typography>
+            <Typography component="p">
+              Paper can be used to build surface or other elements for your application.
+            </Typography>
+          </Paper>
+        </div>
       </div>
     )
   }

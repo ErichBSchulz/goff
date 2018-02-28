@@ -20,6 +20,21 @@ const joinById = (a, b) => {
   )
 }
 
+//create a collection of {userId, viaUserId}
+// based on the session user collection and localStatus property
+const currentVoters = users => {
+  const activeUsers =
+    users
+    .filter(user => user.localStatus === 'active')
+    .reduce((active, user) => {
+      user.votingFor.forEach(
+          userId => active.push({userId, viaUserId: user.id}))
+      return active
+      }, [])
+  return activeUsers
+}
+
+
 //creates a new members array
 const allocateProxies = members => {
   // add votingFor fields
@@ -55,8 +70,42 @@ const allocateProxies = members => {
   return result
 }
 
+// take obj[attributeCollection] and summs the values
+// clones the new object, adding and attributeCollection + mood property
+const summarise = (obj, attributeCollection, elements) => {
+  const summary = {}
+  const votes = obj[attributeCollection]
+  for (const index in votes) {
+    for (const prop in elements) {
+      elements[prop] += (votes[index][prop] || 0)
+    }
+  }
+  summary[attributeCollection + 'Summary'] = elements
+  const result = Object.assign({}, obj, summary)
+  return result
+}
+
+// take {item, voters, payload.action}
+// returns a new item with the mood updated
+const recordVotes = params => {
+  const {item, voters, action} = params
+  // merge these actions to create collection of updated moods by voters
+  let moodUpdates = {}
+  voters.forEach(voter => {
+    const existingMood = (item.mood || {})[voter.userId]
+    moodUpdates[voter.userId] = Object.assign({}, existingMood, action)
+  })
+  // add in new moods to existing mood
+  const mood = Object.assign({}, item.mood, moodUpdates)
+  // copy item
+  return Object.assign({}, item, {mood})
+}
+
 export default {
   addId,
   joinById,
+  currentVoters,
   allocateProxies,
+  summarise,
+  recordVotes,
 }

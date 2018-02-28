@@ -31,23 +31,29 @@ const testState = () => {
     {id: 244085, title: 'Enzo', present: false, proxyTo: [2342, 122445, 250851]},
     {id: 240851, title: 'Fill', present: false,},
     {id: 240853, title: 'Gina', present: true, proxyTo: [2342, 122445, 250851]},
-    {id: 240854, title: 'Gina', present: true, proxyTo: [250851]},
+    {id: 240854, title: 'Heather', present: true, proxyTo: [250851]},
   ])
   const users = Utils.joinById([
         {id: 2342, localStatus: 'active', },
         {id: 97652, localStatus: 'active',},
         {id: 122445, localStatus: 'connected', localOwner: true },
         ], members)
-  console.log('users', users)
-  const forum = Utils.addId({
-    title, members,
-    items: [
-    {id: 2, title: 'Treasurer\'s report'},
-    {id: 6, title: 'secretarie\'s report'},
-    {id: 23, title: 'convenors\'s report'},
-    {id: 103, title: 'directors\' report'},
-    ]
-  })
+  const items = [
+    {
+      id: 2,
+      title: 'Treasurer\'s report',
+      mood: {
+        240851: {support: 1, useful: 1},
+        240853: {support: 1, useful: 1},
+        240854: {support: 1, useful: 1},
+      }
+    },
+    {id: 6, title: 'Secretary\'s report'},
+    {id: 23, title: 'Convenors\'s report'},
+    {id: 103, title: 'Directors\' report'},
+    ].map(item => Utils.summarise(
+          item, 'mood', {support: 0, useful: 0}))
+  const forum = Utils.addId({title, members, items})
   return {
     forum,
     forums: [],
@@ -63,8 +69,6 @@ const testState = () => {
  */
 // sub reducer
 function session(state = [], action) {
-  console.log('state', state)
-  console.log('action', action)
   switch (action.type) {
     case actions.USER.TOGGLELOCALSTATUS: {
       const toggle = state => state === 'active' ? 'connected' : 'active'
@@ -76,7 +80,6 @@ function session(state = [], action) {
           : user)
         )
       const newState = {...state, users }
-      console.log('newState', newState)
       return newState
     }
     case 'blah':
@@ -88,21 +91,25 @@ function session(state = [], action) {
 
 // sub reducer
 function forum(state = {}, action) {
+  const payload = action.payload
   switch (action.type) {
     case actions.FORUM.ADDITEM: {
-      let items = state.items.concat([action.payload])
-      let newState = {...state, items}
+      const items = state.items.concat([payload])
+      const newState = {...state, items}
       return newState
     }
-    case 'ADD_TODO':
-      return state.concat([{ text: action.text, completed: false }])
-    case 'TOGGLE_TODO':
-      return state.map(
-        (todo, index) =>
-          action.index === index
-            ? { text: todo.text, completed: !todo.completed }
-            : todo
-      )
+    case actions.FORUM.ASSERTITEM: {
+      const items = state.items.map(item =>
+          item.id === payload.itemId
+          ? Utils.summarise(
+              Utils.recordVotes(
+                {item, voters: payload.voters, action: payload.action}),
+              'mood', {support: 0, useful: 0})
+          : item)
+      console.log('items after assertion', items)
+      const newState = {...state, items}
+      return newState
+    }
     default:
       return state
   }

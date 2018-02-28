@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { actionCreators  } from './Store'
-import utils from './Utils'
+import Utils from './Utils'
 import List, { ListItem, ListItemSecondaryAction, ListItemText } from 'material-ui/List';
 import IconButton from 'material-ui/IconButton';
 import DoneIcon from 'material-ui-icons/Done';
@@ -22,11 +22,16 @@ class ForumRaw extends Component {
   }
 
   render() {
-    console.log('this.props.forum.items', this.props.forum.items)
+    const activeVoters = Utils.currentVoters(this.props.session.users)
+    console.log('activeVoters', activeVoters)
     return (
       <div>
-        <AgendaItems items={this.props.forum.items} {...this.actionCreators} />
-<h3>{this.props.forum.items.length} items</h3>
+        <AgendaItems
+          items={this.props.forum.items}
+          voters={activeVoters}
+          {...this.actionCreators} />
+        <h3>{this.props.forum.items.length} items</h3>
+        <h3>Voting for {activeVoters.length} members </h3>
         <NewItem {...this.actionCreators} />
       </div>
     )
@@ -38,7 +43,10 @@ class ForumRaw extends Component {
 // Can take an optional second param [ownProps]
 const mapStateToProps = state => {
     // props here become props in the component
-  return {forum: state.forum}
+  return {
+    forum: state.forum,
+    session: state.session,
+  }
 }
  
 const Forum = connect(mapStateToProps)(ForumRaw)
@@ -52,7 +60,13 @@ class AgendaItems extends React.Component {
 
   handleAction = (button, item) => {
     console.log('button, item', button, item)
-    this.assign
+    const payload = {
+      itemId: item.id,
+      voters: this.props.voters,
+      action: {[button.atribute]: button.value}
+    }
+    console.log('payload', payload)
+    this.props.assertItem(payload)
   }
 
   render() {
@@ -74,9 +88,17 @@ class AgendaItems extends React.Component {
             {button.icon}
           </IconButton>
         )}
-        <ListItemText primary={item.title} />
+        <ListItemText
+          primary={item.title}
+          secondary={JSON.stringify(item.moodSummary)} />
+
       </ListItem>)
-    return <List>{listItems}</List>
+    return (
+    <div>
+      <List>{listItems}</List>
+      { JSON.stringify(this.voters)}
+    </div>
+      )
   }
 }
 
@@ -100,7 +122,7 @@ class NewItem extends React.Component {
   handleSubmit(event) {
     console.log('this.props', this.props)
     const title = this.state.title
-    this.props.addItem(utils.addId({
+    this.props.addItem(Utils.addId({
       title: title,
       urgent: this.state.urgent,
     }))
