@@ -169,7 +169,7 @@ class EnhancedTable extends React.Component {
     }
     const meta = this.state.columnMeta.find(n => n.id === property)
     // function to either calculate or lookup value
-    const val = meta.value ? meta.value : row => row[orderBy]
+    const val = meta.sortValue || meta.value || (row => row[orderBy])
     const sort = (a, b) => ((order==='desc') === (val(b) < val(a))) ? -1 : 1
     const data = this.state.data.sort(sort)
     this.setState({data, order, orderBy})

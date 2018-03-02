@@ -11,6 +11,7 @@ import ClearIcon from 'material-ui-icons/Clear'
 import ThumbDownIcon from 'material-ui-icons/ThumbDown'
 import ThumbUpIcon from 'material-ui-icons/ThumbUp'
 import PieChart from 'react-minimal-pie-chart';
+import {pieColors} from './Theme';
 
 class ForumRaw extends Component {
 
@@ -20,7 +21,87 @@ class ForumRaw extends Component {
     // create bound versions of functions so can
     // pass them down to our child later.
     this.actionCreators = bindActionCreators(actionCreators, dispatch)
-    this.biglump = this.testData()
+    this.testBigLump = this.testData()
+    this.testBigLump1 = this.testData1()
+  }
+
+  testData1() {
+    const participantCount = 20
+    const biglump = {
+//      {"id":2,
+//        "title":"Treasurer's report",
+//        "mood":{
+//          "240851":{"support":1,"useful":1,"timeAllowance":10},
+//          "240853":{"support":1,"useful":1,"timeAllowance":10},
+//          "240854":{"support":1,"useful":1,"timeAllowance":50}},
+//        "moodSummary":{
+//          "support":3,
+//          "useful":3,
+//          "timeAllowance":10},
+//        "moodTally":{
+//          "support":{"1":3},
+//          "useful":{"1":3},
+//          "timeAllowance":{"10":2,"50":1}}}
+      heading: "Agenda",
+      columnMeta: [
+        { id: 'title', type: 'text', padding: false, label: 'Item' },
+        { id: 'support', label: 'Support',
+          type: 'numeric',
+          padding: true,
+          value: row => row.moodSummary.support
+        },
+        { id: 'timeAllowance', label: 'Time',
+          type: 'numeric',
+          padding: true,
+          value: row => row.moodSummary.timeAllowance
+        },
+        { id: 'pie',
+          type: 'chart',
+          padding: true,
+          label: 'Support',
+          value: row => {
+            const mood = row.moodTally.support
+            console.log('mood', mood)
+            const pie = [
+                { value: mood[1] || 0,
+                  key: 1,
+                  color: pieColors.green,
+                },
+                { value: participantCount - ((mood[-1] + mood[1]) || 0),
+                  key: 2,
+                  color: pieColors.grey,
+                },
+                { value: mood[-1] || 0,
+                  key: 3,
+                  color: pieColors.red,
+                },
+              ]
+            return <PieChart data={pie}
+                 lineWidth={75}
+                 startAngle={-90}
+                   style={{ height: '2em' }}
+            />
+          },
+          sortValue: row => row.moodSummary.support
+        }
+      ],
+      menu: [
+        {key: 'support', icon: <DoneIcon />, atribute: 'support', value: +1},
+        {key: 'oppose', icon: <ClearIcon />, atribute: 'support', value: -1},
+        {key: 'up', icon: <ThumbUpIcon />, atribute: 'useful', value: +1},
+        {key: 'down', icon: <ThumbDownIcon />, atribute: 'useful', value: -1},
+      ],
+      handler: (button, items) => {
+        console.log('button, items', button, items)
+      },
+      data: this.props.forum.items,
+      page: 0,
+      rowsPerPage: 5,
+      order: 'asc',
+      orderBy: 'title',
+      selected: [],
+    }
+    return biglump
   }
 
   testData() {
@@ -29,11 +110,6 @@ class ForumRaw extends Component {
       counter += 1
       return { id: counter, name, calories, fat, carbs, protein }
     }
-    const pie = [
-          { value: 10, key: 1, color: '#E38627' },
-          { value: 15, key: 2, color: '#C13C37' },
-          { value: 20, key: 3, color: '#6A2135' },
-        ]
     const biglump = {
       heading: "Example table",
       columnMeta: [
@@ -52,15 +128,20 @@ class ForumRaw extends Component {
           type: 'chart',
           padding: true,
           label: 'pie',
-          value: (row) => {
+          value: row => {
             const pie = [
-                { value: row.fat, key: 1, color: '#E38627' },
-                { value: row.carbs, key: 2, color: '#C13C37' },
-                { value: row.protein, key: 3, color: '#6A2135' },
+                { value: row.carbs, key: 2, color: pieColors.red },
+                { value: row.fat, key: 1, color: pieColors.grey },
+                { value: row.protein, key: 3, color: pieColors.green },
               ]
-            return <PieChart data={pie} />
-          }
-        },
+            return <PieChart data={pie}
+                 lineWidth={75}
+                 startAngle={-90}
+                   style={{ height: '2em' }}
+            />
+          },
+          sortValue: row => (row.fat + row.carbs) / Math.max(row.protein, 1)
+        }
       ],
       menu: [
         {key: 'support', icon: <DoneIcon />, atribute: 'support', value: +1},
@@ -101,7 +182,10 @@ class ForumRaw extends Component {
     return (
       <div>
         <Table
-          biglump={this.biglump}
+          biglump={this.testBigLump1}
+        />
+        <Table
+          biglump={this.testBigLump}
         />
         <AgendaItems
           items={this.props.forum.items}
@@ -156,9 +240,9 @@ class AgendaItems extends React.Component {
       {key: 'down', icon: <ThumbDownIcon />, atribute: 'useful', value: -1},
     ]
     const items = this.props.items
-    const itemSummary = item =>
-      JSON.stringify(item.moodSummary) +
-      JSON.stringify(item.moodTally)
+    const itemSummary = item => JSON.stringify(item)
+//      JSON.stringify(item.moodSummary) +
+//      JSON.stringify(item.moodTally)
     const listItems = items.map((item) =>
       <ListItem button key={item.id}>
         <ListItemSecondaryAction>
