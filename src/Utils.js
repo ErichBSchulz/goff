@@ -20,6 +20,15 @@ const joinById = (a, b) => {
   )
 }
 
+// let values = [2, 56, 3, 41, 0, 4, 100, 23]
+// median = 13,5
+const median = values => {
+  values.sort((a, b) => a - b)
+  const i1 = Math.floor((values.length - 1) / 2)
+  const i2 = Math.ceil((values.length - 1) / 2)
+  return (values[i1] + values[i2]) / 2
+}
+
 //create a collection of {userId, viaUserId}
 // based on the session user collection and localStatus property
 const currentVoters = users => {
@@ -34,7 +43,6 @@ const currentVoters = users => {
   return activeUsers
 }
 
-
 //creates a new members array
 const allocateProxies = members => {
   // add votingFor fields
@@ -42,7 +50,7 @@ const allocateProxies = members => {
       member => Object.assign({votingFor : []}, member)
   )
   const result = m.map(member => {
-    let presentProxy = false;
+    let presentProxy = false
     // am I voting on behalf of myself?
     if (member.present) {
       presentProxy = member
@@ -70,18 +78,42 @@ const allocateProxies = members => {
   return result
 }
 
-// take obj[attributeCollection] and summs the values
+// take obj[attributeCollection] and sums the values
 // clones the new object, adding and attributeCollection + mood property
-const summarise = (obj, attributeCollection, elements) => {
-  const summary = {}
+const summarise = (obj, attributeCollection, meta) => {
+  // iniatialise accumlators
+  var summary = {}
+  var tally = {}
+  for (const prop in meta) {
+    summary[prop] = meta[prop].mode === 'median' ? [] : 0
+    tally[prop] = {}
+  }
+  // loop over votes and accumulate vaules per mode
+  console.log('accumulators', summary, tally)
   const votes = obj[attributeCollection]
   for (const index in votes) {
-    for (const prop in elements) {
-      elements[prop] += (votes[index][prop] || 0)
+    for (const prop in meta) {
+      const vote = votes[index][prop]
+      tally[prop][vote] = (tally[prop][vote] || 0) + 1
+      switch (meta[prop].mode) {
+        case 'sum':
+          summary[prop] += (vote || 0)
+          break
+        case 'median':
+          summary[prop].push(vote)
+          break
+        default:
+          throw new Error('bad mode')
+      }
     }
   }
-  summary[attributeCollection + 'Summary'] = elements
-  const result = Object.assign({}, obj, summary)
+  for (const prop in meta) {
+    if (meta[prop].mode === 'median') summary[prop] = median(summary[prop])
+  }
+  const result = Object.assign({}, obj, {
+    [attributeCollection + 'Summary']: summary,
+    [attributeCollection + 'Tally']: tally
+    })
   return result
 }
 

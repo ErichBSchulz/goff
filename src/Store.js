@@ -1,6 +1,15 @@
-import { combineReducers, createStore, applyMiddleware } from 'redux'
-//import thunk from 'redux-thunk'
+import {
+  combineReducers,
+  createStore,
+//  applyMiddleware
+} from 'redux'
 import Utils from './Utils'
+
+const ForumItemAttributes = {
+  support: {mode: 'sum'},
+  useful: {mode: 'sum'},
+  timeAllowance: {mode: 'median'},
+}
 
 const actions = {
   USER: {
@@ -43,16 +52,16 @@ const testState = () => {
       id: 2,
       title: 'Treasurer\'s report',
       mood: {
-        240851: {support: 1, useful: 1},
-        240853: {support: 1, useful: 1},
-        240854: {support: 1, useful: 1},
+        240851: {support: 1, useful: 1, timeAllowance: 10},
+        240853: {support: 1, useful: 1, timeAllowance: 10},
+        240854: {support: 1, useful: 1, timeAllowance: 50},
       }
     },
     {id: 6, title: 'Secretary\'s report'},
     {id: 23, title: 'Convenors\'s report'},
     {id: 103, title: 'Directors\' report'},
     ].map(item => Utils.summarise(
-          item, 'mood', {support: 0, useful: 0}))
+          item, 'mood', ForumItemAttributes))
   const forum = Utils.addId({title, members, items})
   return {
     forum,
@@ -89,6 +98,7 @@ function session(state = [], action) {
   }
 }
 
+
 // sub reducer
 function forum(state = {}, action) {
   const payload = action.payload
@@ -104,7 +114,7 @@ function forum(state = {}, action) {
           ? Utils.summarise(
               Utils.recordVotes(
                 {item, voters: payload.voters, action: payload.action}),
-              'mood', {support: 0, useful: 0})
+              'mood', ForumItemAttributes)
           : item)
       console.log('items after assertion', items)
       const newState = {...state, items}
