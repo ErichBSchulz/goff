@@ -10,6 +10,7 @@ import DoneIcon from 'material-ui-icons/Done'
 import ClearIcon from 'material-ui-icons/Clear'
 import ThumbDownIcon from 'material-ui-icons/ThumbDown'
 import ThumbUpIcon from 'material-ui-icons/ThumbUp'
+import PieChart from 'react-minimal-pie-chart';
 
 class ForumRaw extends Component {
 
@@ -28,6 +29,11 @@ class ForumRaw extends Component {
       counter += 1
       return { id: counter, name, calories, fat, carbs, protein }
     }
+    const pie = [
+          { value: 10, key: 1, color: '#E38627' },
+          { value: 15, key: 2, color: '#C13C37' },
+          { value: 20, key: 3, color: '#6A2135' },
+        ]
     const biglump = {
       heading: "Example table",
       columnMeta: [
@@ -41,6 +47,19 @@ class ForumRaw extends Component {
           padding: true,
           label: 'Total (g)',
           value: (row) => row.fat + row.carbs + row.protein,
+        },
+        { id: 'pie',
+          type: 'chart',
+          padding: true,
+          label: 'pie',
+          value: (row) => {
+            const pie = [
+                { value: row.fat, key: 1, color: '#E38627' },
+                { value: row.carbs, key: 2, color: '#C13C37' },
+                { value: row.protein, key: 3, color: '#6A2135' },
+              ]
+            return <PieChart data={pie} />
+          }
         },
       ],
       menu: [
