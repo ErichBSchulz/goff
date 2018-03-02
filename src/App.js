@@ -1,20 +1,21 @@
 import React, { Component } from 'react'
 import { Provider, connect } from 'react-redux'
 import { BrowserRouter as Router, Route } from 'react-router-dom'
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import Paper from 'material-ui/Paper';
-import Typography from 'material-ui/Typography';
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
+import Paper from 'material-ui/Paper'
+import Typography from 'material-ui/Typography'
 import configureStore from './Store'
 import Forum from './ForumView'
 import Clock from './Clock'
 import AppBar from './AppBarView'
 import Toolbox from './Toolbox'
+import Theme from './Theme'
 import './App.css'
 
 const store = configureStore()
 
 const Root = () => (
-  <MuiThemeProvider>
+  <MuiThemeProvider theme={Theme}>
     <Provider store={store}>
       <Router>
         <Route path="/" component={App} />
