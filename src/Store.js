@@ -5,10 +5,10 @@ import {
 } from 'redux'
 import Utils from './Utils'
 
-const ForumItemAttributes = {
+const ForumItemMeta = {
   support: {mode: 'sum'},
-  useful: {mode: 'sum'},
-  timeAllowance: {mode: 'median'},
+  love: {mode: 'sum'},
+  timeAllowance: {mode: 'median', defaultValue: 10},
 }
 
 const actions = {
@@ -31,7 +31,7 @@ export const actionCreators = {
 }
 
 const testState = () => {
-  const title = "Fish Friends AGM"
+  const title = "Friends AGM"
   const members = Utils.allocateProxies([
     {id: 2342, title: 'Abby', present: true, proxyTo: [122445, 250851]},
     {id: 62345, title: 'Bill', present: true, proxyTo: [2342, 122445, 250851]},
@@ -48,20 +48,34 @@ const testState = () => {
         {id: 122445, localStatus: 'connected', localOwner: true },
         ], members)
   const items = [
-    {
-      id: 2,
-      title: 'Treasurer\'s report',
+    Utils.addId({ title: 'Treasurer\'s report',
       mood: {
-        240851: {support: 1, useful: 1, timeAllowance: 10},
-        240853: {support: 1, useful: 1, timeAllowance: 10},
-        240854: {support: 1, useful: 1, timeAllowance: 50},
-      }
-    },
-    {id: 6, title: 'Secretary\'s report'},
-    {id: 23, title: 'Convenors\'s report'},
-    {id: 103, title: 'Directors\' report'},
+        240851: {support: 1, love: 1, timeAllowance: 10},
+        240853: {support: 1, love: 1, timeAllowance: 10},
+        240854: {support: 1, love: 1, timeAllowance: 50},
+      },
+      motions: [Utils.addId({
+        title: 'Accept report',
+        details: 'That the treasurer\'s report be accepted',
+        movedBy: [], secondedBy: []}),
+       ]
+    }),
+    Utils.addId({ title: 'Secretary\'s report',
+      motions: [
+        Utils.addId({
+          title: 'Accept report',
+          details: 'That the secretaries\'s report be accepted',
+          movedBy: [], secondedBy: []}),
+        Utils.addId({
+          title: 'Appoint assistant',
+          details: 'That the Sam be appointed as assitant secretary',
+          movedBy: [], secondedBy: []}),
+      ]
+    }),
+    Utils.addId({ title: 'Convenors\'s report'}),
+    Utils.addId({ title: 'Directors\' report'}),
     ].map(item => Utils.summarise(
-          item, 'mood', ForumItemAttributes))
+          item, 'mood', ForumItemMeta))
   const forum = Utils.addId({title, members, items})
   return {
     forum,
@@ -113,10 +127,12 @@ function forum(state = {}, action) {
           item.id === payload.itemId
           ? Utils.summarise(
               Utils.recordVotes(
-                {item, voters: payload.voters, action: payload.action}),
-              'mood', ForumItemAttributes)
+                {item,
+                 voters: payload.voters,
+                 action: payload.action,
+                 meta: ForumItemMeta}),
+              'mood', ForumItemMeta)
           : item)
-      console.log('items after assertion', items)
       const newState = {...state, items}
       return newState
     }

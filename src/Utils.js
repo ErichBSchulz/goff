@@ -89,7 +89,6 @@ const summarise = (obj, attributeCollection, meta) => {
     tally[prop] = {}
   }
   // loop over votes and accumulate vaules per mode
-  console.log('accumulators', summary, tally)
   const votes = obj[attributeCollection]
   for (const index in votes) {
     for (const prop in meta) {
@@ -100,7 +99,7 @@ const summarise = (obj, attributeCollection, meta) => {
           summary[prop] += (vote || 0)
           break
         case 'median':
-          summary[prop].push(vote)
+          if (typeof vote !== 'undefined') summary[prop].push(vote)
           break
         default:
           throw new Error('bad mode')
@@ -117,20 +116,57 @@ const summarise = (obj, attributeCollection, meta) => {
   return result
 }
 
+const timesUp = {1: 2, 2: 3, 3: 4, 4: 5, 5: 7, 7: 8, 8: 10, 10: 15, 15: 20, 20: 25, 25: 30,
+  30: 40, 40: 50, 50: 60, 60: 70, 70: 80, 80: 90, 90: 120, 120: 150, 150: 180,
+  180: 240, 240: 300, 300: 360, 360: 420, 420: 480}
+const timesDown = ((o) => { // invert times up array
+  let i = {}
+  for (const k in o) i[o[k]] = Math.floor(k) // cast as int
+  return i})(timesUp)
+
+// add more or less to a number in a logarithmic scale
+// uses timesUp and timesDown
+const relativeChange = (action, current, defaultValue) => {
+  const start = isNaN(current) ? defaultValue : current
+  var result
+  switch (action) {
+    case 'more':
+      result = timesUp[start] || Math.round(start * 1.3) + 1
+      break
+    case 'less':
+      result = timesDown[start] || Math.max(Math.round(start / 1.3) - 1, 0)
+      break
+    default:
+      throw new Error('bad action')
+  }
+  return result
+}
+
 // take {item, voters, payload.action}
 // returns a new item with the mood updated
 const recordVotes = params => {
-  const {item, voters, action} = params
+  const {item, voters, action, meta} = params
   // merge these actions to create collection of updated moods by voters
   let moodUpdates = {}
   voters.forEach(voter => {
-    const existingMood = (item.mood || {})[voter.userId]
-    moodUpdates[voter.userId] = Object.assign({}, existingMood, action)
+    const existingMood = ((item.mood || {})[voter.userId]) || {}
+    let relativeActions = {}
+    for (const field in action) {
+      const fieldMeta = meta[field]
+      if (fieldMeta.mode === 'median') {
+        relativeActions[field] = relativeChange(action[field], existingMood[field], fieldMeta.defaultValue)
+      }
+      else {
+        relativeActions[field] = action[field]
+      }
+    }
+    moodUpdates[voter.userId] = Object.assign({}, existingMood, relativeActions)
   })
   // add in new moods to existing mood
   const mood = Object.assign({}, item.mood, moodUpdates)
   // copy item
-  return Object.assign({}, item, {mood})
+  const finalItem = Object.assign({}, item, {mood})
+  return finalItem
 }
 
 export default {

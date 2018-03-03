@@ -47,26 +47,22 @@ class EnhancedTableHead extends React.Component {
               onChange={onSelectAllClick}
             />
           </TableCell>
-          {this.props.columnMeta.map(column => {
+          {this.props.meta.map(column => {
             return (
-              <TableCell
-                key={column.id}
-                numeric={column.type === 'numeric'}
+              <TableCell key={column.id}
+                numeric={column.type !== 'text'}
                 padding={column.padding ? 'default' : 'none'}
-                sortDirection={orderBy === column.id ? order : false}
-              >
+                sortDirection={orderBy === column.id ? order : false} >
                 <Tooltip
                   title="Sort"
                   placement={column.type === 'numeric'
                     ? 'bottom-end'
                     : 'bottom-start'}
-                  enterDelay={300}
-                >
+                  enterDelay={300} >
                   <TableSortLabel
                     active={orderBy === column.id}
                     direction={order}
-                    onClick={this.createSortHandler(column.id)}
-                  >
+                    onClick={this.createSortHandler(column.id)} >
                     {column.label}
                   </TableSortLabel>
                 </Tooltip>
@@ -154,11 +150,8 @@ const styles = theme => ({
 class EnhancedTable extends React.Component {
   constructor(props, context) {
     super(props, context)
-    // split initial read of props to:
-    // columnMeta -> props
-    // startingState -> state
-    // data -> props
-    this.state = props.biglump
+    this.state = props.startingState
+    this.state.sortedData = props.data
   }
 
   handleRequestSort = (event, property) => {
@@ -167,18 +160,19 @@ class EnhancedTable extends React.Component {
     if (this.state.orderBy === property && this.state.order === 'desc') {
       order = 'asc'
     }
-    const meta = this.state.columnMeta.find(n => n.id === property)
+    const column = this.props.meta.find(n => n.id === property)
     // function to either calculate or lookup value
-    const val = meta.sortValue || meta.value || (row => row[orderBy])
+    const val = column.sortValue
+      || column.value
+      || (row => row[orderBy])
     const sort = (a, b) => ((order==='desc') === (val(b) < val(a))) ? -1 : 1
-    const data = this.state.data.sort(sort)
-    this.setState({data, order, orderBy})
+    const sortedData = this.props.data.slice().sort(sort)
+    this.setState({sortedData, order, orderBy})
   }
-
 
   handleSelectAllClick = (event, checked) => {
     if (checked) {
-      this.setState({ selected: this.state.data.map(n => n.id) })
+      this.setState({ selected: this.props.data.map(n => n.id) })
     }
     else {
       this.setState({ selected: [] })
@@ -207,30 +201,34 @@ class EnhancedTable extends React.Component {
     this.setState({ page })
   }
 
+  cellValue = (column, row) => {
+    const val = column.value ? column.value(row) : row[column.id]
+    return column.type === 'numeric' && isNaN(val) ? '' : val
+  }
+
   handleChangeRowsPerPage = event => {
     this.setState({ rowsPerPage: event.target.value })
   }
 
   isSelected = id => this.state.selected.indexOf(id) !== -1
 
-  // calls the supplied handler after looking up the id in the collection
+  // calls the supplied action handler after looking up the id in the collection
   handler = (button, ids) => {
-    const data = this.state.data
+    const data = this.props.data
     const items = data.filter(row => ids.find(id => (id === row.id)))
-    this.state.handler(button, items)
+    this.props.handler(button, items)
   }
 
   render() {
     const { classes } = this.props
-    const { heading,
-      data,
-      menu,
-      columnMeta,
+    const { sortedData,
       order, orderBy, selected,
-      rowsPerPage, page,
-    } = this.state
-    const emptyRows = rowsPerPage - Math.min(rowsPerPage, data.length - page * rowsPerPage)
-
+      rowsPerPage: rpp, page} = this.state
+    const { heading, data,
+      menu, meta} = this.props
+    const emptyRows = rpp - Math.min(rpp, data.length - page * rpp)
+    const colSpan = meta.length + 2
+    const visibleRows = sortedData.slice(page*rpp, (page+1)*rpp)
     return (
       <Paper className={classes.root}>
         <EnhancedTableToolbar
@@ -242,7 +240,7 @@ class EnhancedTable extends React.Component {
         <div className={classes.tableWrapper}>
           <Table className={classes.table}>
             <EnhancedTableHead
-              columnMeta={columnMeta}
+              meta={meta}
               numSelected={selected.length}
               order={order}
               orderBy={orderBy}
@@ -251,7 +249,8 @@ class EnhancedTable extends React.Component {
               rowCount={data.length}
             />
             <TableBody>
-              {data.slice(page * rowsPerPage, (page+1)*rowsPerPage).map(row => {
+              {visibleRows.map(sortedRow => {
+                const row = data.find(r => r.id === sortedRow.id)
                 const isSelected = this.isSelected(row.id)
                 return (
                   <TableRow
@@ -266,15 +265,13 @@ class EnhancedTable extends React.Component {
                     <TableCell padding="checkbox">
                       <Checkbox checked={isSelected} />
                     </TableCell>
-                    {columnMeta.map(column => { return (
+                    {meta.map(column => { return (
                       <TableCell
-                        numeric={column.type === 'numeric'}
+                        numeric={column.type !== 'text'}
                         padding={column.padding ? 'default' : 'none'}
                         key={column.id}
                         >
-                          {column.value
-                            ? column.value(row)
-                            : row[column.id]}
+                        {this.cellValue(column, row)}
                       </TableCell>
                     )}, this)}
                     <TableCell>
@@ -288,17 +285,15 @@ class EnhancedTable extends React.Component {
               })}
               {emptyRows > 0 && (
                 <TableRow style={{ height: 49 * emptyRows }}>
-                  <TableCell colSpan={6} />
+                  <TableCell colSpan={colSpan} />
                 </TableRow>
               )}
             </TableBody>
             <TableFooter>
               <TableRow>
                 <TablePagination
-                  colSpan={6}
-                  count={data.length}
-                  rowsPerPage={rowsPerPage}
-                  page={page}
+                  colSpan={colSpan}
+                  count={data.length} rowsPerPage={rpp} page={page}
                   backIconButtonProps={{'aria-label': 'Previous Page'}}
                   nextIconButtonProps={{'aria-label': 'Next Page'}}
                   onChangePage={this.handleChangePage}

@@ -13,6 +13,10 @@ node -v
 npx -v
 lsb_release -a | grep Release
 
+v4.2.1
+bash: line 2: npx: command not found
+No LSB modules are available.
+Release:	13
 
 This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).
 

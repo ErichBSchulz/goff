@@ -23,13 +23,19 @@ class Toolbox extends Component {
           href: "https://material.io/icons/" },
         {
           title: "Components",
-          href: "https://material-ui-next.com/getting-started/supported-components/" },
+          href: "https://material-ui-next.com/demos/app-bar/" },
         {
           title: "Redux",
           href: "https://redux.js.org/basics" },
         {
           title: "Saga",
-          href: "https://redux-saga.js.org/docs/basics/index.html" }
+          href: "https://redux-saga.js.org/docs/basics/index.html" },
+        {
+          title: "Colors",
+          href: "https://material.io/color/#!/" },
+        {
+          title: "Pies",
+          href: "https://www.npmjs.com/package/react-minimal-pie-chart" },
      ]
     }
   }

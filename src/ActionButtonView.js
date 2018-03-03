@@ -6,7 +6,6 @@ class ActionButtons extends Component {
   handleClick(button, items, e) {
     e.stopPropagation();
     this.props.handler(button, items)
-    console.log('The link was clicked.');
   }
 
   // expects:

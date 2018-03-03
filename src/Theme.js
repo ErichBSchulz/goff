@@ -1,5 +1,5 @@
 import { createMuiTheme } from 'material-ui/styles'
-import purple from 'material-ui/colors/purple'
+//import purple from 'material-ui/colors/purple'
 import green from 'material-ui/colors/green'
 import grey from 'material-ui/colors/grey'
 import red from 'material-ui/colors/red'
@@ -19,5 +19,11 @@ const pieColors = {
   green: green[600],
 }
 
+// returns a color based on a -1 to 1 scale
+const scaleColor = (ratio) => {
+  const index = Math.round(ratio*9) * 100
+  return index === 0 ? grey[50] : index > 0 ? green[index] : grey[-index]
+}
+
 export default theme
-export { pieColors }
+export { pieColors, scaleColor }
