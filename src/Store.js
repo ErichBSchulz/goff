@@ -12,6 +12,9 @@ const ForumItemMeta = {
 }
 
 const actions = {
+  ITEM: {
+    SET: 'item/set',
+  },
   USER: {
     JOIN: 'user/join',
     LEAVE: 'user/leave',
@@ -27,6 +30,7 @@ export const actionCreators = {
   toggleUserLocalStatus: (payload) => (
                              {type: actions.USER.TOGGLELOCALSTATUS, payload}),
   addItem: (payload) => ({type: actions.FORUM.ADDITEM, payload}),
+  setItem: (payload) => ({type: actions.ITEM.SET, payload}),
   assertItem: (payload) => ({type: actions.FORUM.ASSERTITEM, payload}),
 }
 
@@ -78,9 +82,13 @@ const testState = () => {
           item, 'mood', ForumItemMeta))
   const forum = Utils.addId({title, members, items})
   return {
-    forum,
-    forums: [],
-    session: {device: "Dougs's tablet", users},
+    session: {device: "Dougs's tablet", users}, // local information
+    forums: [], // list of active forums
+    forum, // the current forum
+    item: forum.items[0],
+    index: { // denormalised
+      members: Utils.indexForumMembers(members),
+    },
   }
 }
 
@@ -112,6 +120,18 @@ function session(state = [], action) {
   }
 }
 
+
+// sub reducer
+function item(state = {}, action) {
+  switch (action.type) {
+    case actions.ITEM.SET: {
+      state = {...action.payload.item}
+      return state
+    }
+    default:
+      return state
+  }
+}
 
 // sub reducer
 function forum(state = {}, action) {
@@ -158,7 +178,18 @@ function forums(state = [], action) {
   }
 }
 
-const reducer = combineReducers({ session, forum, forums })
+// sub reducer
+function index(state = [], action) {
+  return state
+}
+
+const reducer = combineReducers({
+  session,
+  forums,
+  forum,
+  item,
+  index,
+})
 
 export default function configureStore() {
   return createStore(

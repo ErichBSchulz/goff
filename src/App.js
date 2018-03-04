@@ -2,14 +2,13 @@ import React, { Component } from 'react'
 import { Provider, connect } from 'react-redux'
 import { BrowserRouter as Router, Route } from 'react-router-dom'
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
-import Paper from 'material-ui/Paper'
-import Typography from 'material-ui/Typography'
 import configureStore from './Store'
 import Forum from './ForumView'
-import Clock from './Clock'
+import Item from './ItemView'
 import AppBar from './AppBarView'
 import Toolbox from './Toolbox'
 import Theme from './Theme'
+import { Snack } from './Widgets'
 import './App.css'
 
 const store = configureStore()
@@ -31,19 +30,10 @@ class AppRaw extends Component {
       <div className="App">
         <AppBar />
         <div className="App-body">
-          <Paper elevation={4}>
-            <Forum />
-          </Paper>
+          <Forum />
+          <Item item={this.props.item} />
           <Toolbox />
-          <Clock />
-          <Paper elevation={4}>
-            <Typography variant="headline" component="h3">
-              This is a sheet of paper.
-            </Typography>
-            <Typography component="p">
-              Paper can be used to build surface or other elements for your application.
-            </Typography>
-          </Paper>
+          <Snack />
         </div>
       </div>
     )
@@ -58,6 +48,7 @@ const mapStateToProps = state => {
     users: state.users,
     forum: state.forum,
     forums: state.forums,
+    item: state.item,
     // todos: getVisibleTodos(state.todos, state.visibilityFilter)
   }
 }

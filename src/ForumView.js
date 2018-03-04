@@ -2,28 +2,12 @@ import React, { Component } from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { actionCreators  } from './Store'
+import { MoodPie  } from './Widgets'
 import Utils from './Utils'
 import Table from './TableView'
-import ActionButtons from './ActionButtonView'
-import List, { ListItem, ListItemSecondaryAction, ListItemText } from 'material-ui/List'
 import Icon from 'material-ui/Icon';
-import DoneIcon from 'material-ui-icons/Done'
-import ClearIcon from 'material-ui-icons/Clear'
-import ThumbDownIcon from 'material-ui-icons/ThumbDown'
-import ThumbUpIcon from 'material-ui-icons/ThumbUp'
-import ArrowUpwardIcon from 'material-ui-icons/ArrowUpward'
-import ArrowDownwardIcon from 'material-ui-icons/ArrowDownward'
-import Pie from './PieView';
-import {pieColors, scaleColor} from './Theme';
-
-const actionButtons = [
-  {key: 'support', icon: <DoneIcon />, atribute: 'support', value: +1},
-  {key: 'oppose', icon: <ClearIcon />, atribute: 'support', value: -1},
-  {key: 'up', icon: <ThumbUpIcon />, atribute: 'love', value: +1},
-  {key: 'down', icon: <ThumbDownIcon />, atribute: 'love', value: -1},
-  {key: 'more', icon: <ArrowUpwardIcon />, atribute: 'timeAllowance', value: 'more'},
-  {key: 'less', icon: <ArrowDownwardIcon />, atribute: 'timeAllowance', value: 'less'},
-]
+import {scaleColor} from './Theme';
+import { getActionButtons, participantCount } from './Meta'
 
 class ForumRaw extends Component {
 
@@ -34,6 +18,7 @@ class ForumRaw extends Component {
     // pass them down to our child later.
     this.actionCreators = bindActionCreators(actionCreators, dispatch)
     this.agendaTable = this.makeAgendaTable()
+    this.itemActionButtons = getActionButtons('motion')
   }
 
   handleActionButton = (button, items) => {
@@ -46,12 +31,15 @@ class ForumRaw extends Component {
         action: {[button.atribute]: button.value}
       }
       this.actionCreators.assertItem(payload)
+      if (items.length === 1) {
+        this.actionCreators.setItem({item: items[0]})
+      }
     })
   }
 
   makeAgendaTable() {
-    const participantCount = this.props.forum.members.length || 1000
-    console.log('participantCount', participantCount)
+   const participants = participantCount(this.props.forum) || 1000
+    console.log('participants', participants)
     const biglump = {
       startingState: {
         page: 0,
@@ -73,7 +61,7 @@ class ForumRaw extends Component {
           sortValue: row => Object.keys(row.mood || {}).length,
           value: row => {
             const n = Object.keys(row.mood || {}).length
-            const scale = scaleColor(n / participantCount)
+            const scale = scaleColor(n / participants)
             return <Icon style={{color: scale}}>group</Icon>
           }
         },
@@ -82,7 +70,7 @@ class ForumRaw extends Component {
           padding: false,
           sortValue: row => row.moodSummary.love,
           value: row => {
-            const scale = scaleColor(row.moodSummary.love / participantCount)
+            const scale = scaleColor(row.moodSummary.love / participants)
             return <Icon style={{color: scale}}>favorite</Icon>
           }
         },
@@ -97,21 +85,10 @@ class ForumRaw extends Component {
           label: 'Support',
           value: row => {
             const mood = row.moodTally.support
-            const pie = [
-                { value: mood[1] || 0,
-                  key: 1,
-                  color: pieColors.green,
-                },
-                { value: participantCount - (mood[-1] || 0) - (mood[1] || 0),
-                  key: 2,
-                  color: pieColors.grey,
-                },
-                { value: mood[-1] || 0,
-                  key: 3,
-                  color: pieColors.red,
-                },
-              ]
-            return <Pie data={pie} size={"2em"} />
+            return <MoodPie
+              mood={mood}
+              total={participants}
+              size={"2em"} />
           },
           sortValue: row => row.moodSummary.support
         }
@@ -121,24 +98,16 @@ class ForumRaw extends Component {
   }
 
   render() {
-    const activeVoters = Utils.currentVoters(this.props.session.users)
     return (
       <div>
         <Table
           heading={"Agenda"}
           meta={this.agendaTable.meta}
           data={this.props.forum.items}
-          menu={actionButtons}
+          menu={this.itemActionButtons}
           handler={this.handleActionButton}
           startingState={this.agendaTable.startingState}
         />
-        <AgendaItems
-          items={this.props.forum.items}
-          handler={this.handleActionButton}
-          {...this.actionCreators} />
-        <h3>{this.props.forum.items.length} items</h3>
-        <h3>Voting for {activeVoters.length} members </h3>
-        <NewItem {...this.actionCreators} />
       </div>
     )
   }
@@ -156,96 +125,5 @@ const mapStateToProps = state => {
 }
  
 const Forum = connect(mapStateToProps)(ForumRaw)
-
-class AgendaItems extends React.Component {
-
-  constructor(props) {
-    super(props)
-    console.log('props', props)
-  }
-
-  render() {
-    const items = this.props.items
-    const itemSummary = item => JSON.stringify(item)
-//      JSON.stringify(item.moodSummary) +
-//      JSON.stringify(item.moodTally)
-    const listItems = items.map((item) =>
-      <ListItem button key={item.id}>
-        <ListItemSecondaryAction>
-          <ActionButtons
-            menu={actionButtons}
-            handler={this.props.handler}
-            items={[item]}
-          />
-        </ ListItemSecondaryAction>
-        <ListItemText
-          primary={item.title}
-          secondary={itemSummary(item)} />
-      </ListItem>)
-    return (
-    <div>
-      <List>{listItems}</List>
-      { JSON.stringify(this.voters)}
-    </div>
-      )
-  }
-}
-
-
-
-
-
-class NewItem extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      urgent: false,
-      title: "My item"
-    }
-    this.handleInputChange = this.handleInputChange.bind(this)
-    this.handleSubmit = this.handleSubmit.bind(this)
-  }
-
-  handleInputChange(event) {
-    const target = event.target
-    const value = target.type === 'checkbox' ? target.checked : target.value
-    this.setState({[target.name]: value})
-  }
-
-  handleSubmit(event) {
-    console.log('this.props', this.props)
-    const title = this.state.title
-    this.props.addItem(Utils.addId({
-      title: title,
-      urgent: this.state.urgent,
-    }))
-    event.preventDefault()
-  }
-
-  render() {
-    return (
-      <form onSubmit={this.handleSubmit}>
-
-      <i className="material-icons md-18">face</i>
-        <label>
-          Urgent:
-          <input name="urgent" type="checkbox"
-            checked={this.state.urgent}
-            onChange={this.handleInputChange} />
-        </label>
-        <br />
-        <label>
-          Title:
-          <input
-            name="title"
-            type="text"
-            value={this.state.title}
-            onChange={this.handleInputChange} />
-        </label>
-        <input type="submit" value="Submit Item" />
-      </form>
-    )
-  }
-}
 
 export default Forum

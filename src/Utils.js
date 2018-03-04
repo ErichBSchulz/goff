@@ -13,6 +13,14 @@ const findById = (array, id) => {
   return array.find(e => {return e.id === id})
 }
 
+// create an object from an array keyed on an id column
+const indexBy = (array, id = 'id') => {
+  var index = {}
+  array.forEach(item => {index[item[id]] = item})
+  return index
+}
+
+
 // join elemenets of array b into elements of array a
 const joinById = (a, b) => {
   return a.map(ea =>
@@ -27,6 +35,61 @@ const median = values => {
   const i1 = Math.floor((values.length - 1) / 2)
   const i2 = Math.ceil((values.length - 1) / 2)
   return (values[i1] + values[i2]) / 2
+}
+
+// JSON.stringify replacer avoid circles
+// thanks to https://stackoverflow.com/questions/11616630/json-stringify-avoid-typeerror-converting-circular-structure-to-json?rq=1
+const stringify = (obj, replacer, indent=2) => {
+  var po = [] // printed objects
+  var pok = [] // printed object keys
+  const printOnceReplacer = (key, value) => {
+    if (po.length > 2000) { return 'object too long'}
+    var printedObjIndex = false
+    po.forEach((obj, index) => {
+      if(obj===value) {printedObjIndex = index}
+    })
+    if (key === '') { //root element
+      po.push(obj)
+      pok.push("root")
+      return value
+    }
+    else if (printedObjIndex+"" !== "false" && typeof(value)==="object"){
+      if (pok[printedObjIndex] === "root"){
+        return "(pointer to root)"
+      } else if (value.id && value.title) {
+        return '{#' + value.id + ' ' + value.title + '}'
+      } else {
+        const type = (!!value && !!value.constructor)
+            ? value.constructor.name.toLowerCase()
+            : typeof(value)
+        return "(see " + type +  " with key " + pok[printedObjIndex] + ")"
+      }
+    } else {
+      po.push(value)
+      pok.push(key || "(empty key)")
+      return replacer ? replacer(key, value) : value
+    }
+  }
+  return JSON.stringify(obj, printOnceReplacer, indent)
+}
+
+// creates a denormalised version of the members state.
+// looks up all the IDs in:
+//   [votingFor]
+//   [proxyTo]
+//   activeProxy
+const indexForumMembers = members => {
+  var index = indexBy(members)
+  members.forEach(member => {
+    let indexed = {};
+    ['votingFor', 'proxyTo'].forEach(k => {
+      indexed[k+'Index'] = (member[k] || []).map(id => index[id])
+    })
+    indexed.activeProxyIndex = index[member.activeProxy]
+    // copy new shallow copy and decorated object into index
+    index[member.id] = Object.assign(indexed, member)
+  })
+  return index
 }
 
 //create a collection of {userId, viaUserId}
@@ -170,10 +233,14 @@ const recordVotes = params => {
 }
 
 export default {
+  // generic:
   addId,
   joinById,
+  stringify,
+  // application specifit
   currentVoters,
   allocateProxies,
   summarise,
+  indexForumMembers,
   recordVotes,
 }
