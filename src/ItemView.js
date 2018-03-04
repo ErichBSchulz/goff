@@ -11,7 +11,6 @@ import { getActionButtons, participantCount } from './Meta'
 import Members from './MemberView'
 import ActionButtons from './ActionButtonView'
 import Card, { CardActions, CardContent } from 'material-ui/Card';
-import Button from 'material-ui/Button';
 import Typography from 'material-ui/Typography';
 
 class ItemRaw extends Component {
@@ -45,6 +44,7 @@ class ItemRaw extends Component {
       members,
       } = this.props
     const {
+      id,
       title,
       details,
       url,
@@ -55,8 +55,17 @@ class ItemRaw extends Component {
       } = item
       console.log('members', members)
     // needed as a denominator
-    const participants = participantCount(this.props.forum) || 1000
+    const participants = participantCount(forum) || 1000
     const memberIds = Object.keys(members)
+
+    const temp = <div>
+                <Members
+                  members={memberIds} index={members} />
+                <Members members={memberIds}
+                  index={members}
+                  mode='plain'
+                  />
+                  </div>
 
     return (
       <div>
@@ -69,17 +78,12 @@ class ItemRaw extends Component {
               {details}
             </Typography>
             {motions.map(motion =>
-              <Motion motion={motion}
+              <Motion
+                key={id}
+                motion={motion}
                 participants={participants}
                 index={members} />)}
               <div>
-                <Members
-                  members={memberIds} index={members} />
-                <Members members={memberIds}
-                  index={members}
-                  mode='plain'
-                  />
-                <Debug heading='motions' val={motions} />
                 <Mood
                   index={members}
                   mood={mood}

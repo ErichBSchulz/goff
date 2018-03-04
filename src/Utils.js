@@ -9,6 +9,15 @@ const addId = (obj) => {
   return obj
 }
 
+const pluralise = (n, singular = '', multiple = 's') => n === 1 ? singular : multiple
+// cope with the weirdness of "1 loves, 2 love" - wtf English!
+const inversePluralise = n => n === 1 ? 's' : ''
+
+const toList = (array, sep = ', ', last = 'and') => {
+  const len = array.length
+  return array.reduce((s, a, i) => a + (i+1===len ? last : sep) + s)
+}
+
 const findById = (array, id) => {
   return array.find(e => {return e.id === id})
 }
@@ -179,6 +188,20 @@ const summarise = (obj, attributeCollection, meta) => {
   return result
 }
 
+// cluster a mood (indexed on memberid) to make a list of moods.
+const cluster = (mood) => {
+  let result = {}
+  Object.keys(mood).forEach(id => { // id = 1234
+    Object.keys(mood[id]).forEach(attribute => { // attribute = support
+      if (!result[attribute]) result[attribute] = {}
+      const value = mood[id][attribute] //
+      if (!result[attribute][value]) result[attribute][value] = []
+      result[attribute][value].push(id)
+    })
+  })
+  return result
+}
+
 const timesUp = {1: 2, 2: 3, 3: 4, 4: 5, 5: 7, 7: 8, 8: 10, 10: 15, 15: 20, 20: 25, 25: 30,
   30: 40, 40: 50, 50: 60, 60: 70, 70: 80, 80: 90, 90: 120, 120: 150, 150: 180,
   180: 240, 240: 300, 300: 360, 360: 420, 420: 480}
@@ -234,13 +257,17 @@ const recordVotes = params => {
 
 export default {
   // generic:
+  pluralise,
+  inversePluralise,
+  toList,
   addId,
   joinById,
-  stringify,
+  stringify, // JSON replacer
   // application specifit
   currentVoters,
   allocateProxies,
   summarise,
   indexForumMembers,
+  cluster, // reorganise a mood list to make arrays of ids
   recordVotes,
 }

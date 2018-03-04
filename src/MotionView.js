@@ -9,6 +9,8 @@ import { getActionButtons } from './Meta'
 import Mood from './MoodView'
 import Members from './MemberView'
 import ActionButtons from './ActionButtonView'
+import Paper from 'material-ui/Paper';
+import Grid from 'material-ui/Grid';
 import Card, { CardActions, CardContent } from 'material-ui/Card';
 import Typography from 'material-ui/Typography';
 
@@ -50,22 +52,40 @@ class MotionRaw extends Component {
             <Typography variant={'title'} >
               {motion.title}
             </Typography>
-            <Typography component={'p'} >
-              {motion.title}
-              {motion.title}
-              {motion.title}
-              {motion.title}
+
+      <Grid container spacing={24}>
+        <Grid item xs>
+          <Paper >
+            <Typography variant='body2' >
+              Motion: {motion.details}
             </Typography>
-            Moved <Members
-              members={motion.movedBy} index={index} mode='plain' />
-            Seconded <Members
-              members={motion.secondedBy} index={index} mode='plain' />
-                <Mood
-                  participants={participants}
-                  mood={motion.mood}
-                  tally={motion.moodTally}
-                  summary={motion.moodSummary} />
-                <Debug heading='motions' val={motion.motions} />
+          </Paper>
+        </Grid>
+        <Grid item xs={2}>
+          <Paper >
+            <Members
+              heading='Moved'
+              members={motion.movedBy}
+              index={index}
+              mode='plain' />
+          </Paper>
+        </Grid>
+        <Grid item xs={2}>
+          <Paper >
+            <Members
+              heading='Seconded'
+              members={motion.secondedBy}
+              index={index}
+              mode='plain' />
+          </Paper>
+        </Grid>
+      </Grid>
+            <Mood
+              participants={participants}
+              index={index}
+              mood={motion.mood}
+              tally={motion.moodTally}
+              summary={motion.moodSummary} />
           </CardContent>
           <CardActions>
             <ActionButtons

@@ -1,6 +1,4 @@
 import React from 'react'
-import Utils from './Utils'
-import Icon from 'material-ui/Icon';
 import DoneIcon from 'material-ui-icons/Done'
 import ClearIcon from 'material-ui-icons/Clear'
 import ThumbDownIcon from 'material-ui-icons/ThumbDown'

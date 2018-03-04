@@ -26,9 +26,11 @@ class Member extends Component {
   }
   render() {
     const {memberId, index, mode} = this.props
+      console.log('memberId, index, mode', memberId, index, mode)
     const {expanded} = this.state
     const member = index[memberId]
     let label = member.title
+    console.log('label', label)
     const {votingForIndex} = member
     let proxies = []
     if (mode === 'proxy') {
@@ -56,7 +58,7 @@ class Member extends Component {
 Member.propTypes = {
   memberId: PropTypes.string.isRequired,
   index: PropTypes.object.isRequired,
-  mode: PropTypes.oneOf['proxy', 'plain']
+  mode: PropTypes.oneOf(['proxy', 'plain'])
 }
 
 class Members extends Component {
@@ -70,29 +72,35 @@ class Members extends Component {
     this.setState({expanded: !this.state.expanded})
   }
   render() {
-    const {members, index, mode} = this.props
+    const {members, index, mode, heading} = this.props
     const {expanded} = this.state
 
     if (expanded) {
       console.log('rendering member', members)
     }
 
-    return <Paper style={{padding: 5}} >
+    return (
+      <Paper style={{padding: 5}} >
+        <Typography variant="caption">
+          {heading}
+        </Typography>
         {members.map(id => <
-            Member memberId={id} index={index} mode={mode} />)}
-      </Paper>
+        Member key={id} memberId={id} index={index} mode={mode} />)}
+      </Paper>)
   }
 }
 Members.propTypes = {
   members: PropTypes.array.isRequired,
   index: PropTypes.object.isRequired,
-  mode: PropTypes.oneOf['proxy', 'plain']
+  mode: PropTypes.oneOf(['proxy', 'plain']),
+  heading: PropTypes.string
 }
 Members.defaultProps = {
   mode: 'proxy',
 }
 
 // full detailed breakdown
+// wip
 class MemberFull extends Component {
   constructor(props) {
     super(props)

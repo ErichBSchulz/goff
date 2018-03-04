@@ -53,6 +53,7 @@ const testState = () => {
         ], members)
   const items = [
     Utils.addId({ title: 'Treasurer\'s report',
+      details: 'Update on financial position after recent election',
       mood: {
         240851: {support: 1, love: 1, timeAllowance: 10},
         240853: {support: 1, love: 1, timeAllowance: 10},
@@ -61,7 +62,7 @@ const testState = () => {
       motions: [Utils.addId({
         title: 'Accept report',
         details: 'That the treasurer\'s report be accepted',
-        movedBy: [], secondedBy: []}),
+        movedBy: [62345], secondedBy: [244085]}),
        ]
     }),
     Utils.addId({ title: 'Secretary\'s report',
@@ -69,7 +70,7 @@ const testState = () => {
         Utils.addId({
           title: 'Accept report',
           details: 'That the secretaries\'s report be accepted',
-          movedBy: [], secondedBy: []}),
+          movedBy: [62345], secondedBy: [244085]}),
         Utils.addId({
           title: 'Appoint assistant',
           details: 'That the Sam be appointed as assitant secretary',

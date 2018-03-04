@@ -12,35 +12,20 @@ import IconButton from 'material-ui/IconButton'
 import CloseIcon from 'material-ui-icons/Close'
 import Utils from './Utils'
 import Pie from './PieView';
-import {pieColors, scaleColor} from './Theme';
+import {pieColors, //scaleColor
+  } from './Theme';
 
 class Debug extends Component {
-  state = {
-    expanded: false,
-  }
-  handleChange = () => {
-    this.setState({expanded: !this.state.expanded})
+  details = () => {
+    const {heading, val} = this.props
+    console.log('debuging', heading, val)
+    return <Typography component='pre'>
+         {Utils.stringify(val)}
+      </Typography>
   }
   render() {
-    const {heading, val} = this.props
-    const {expanded} = this.state
-    const details = () => {
-      if (expanded) {
-        console.log('debuging', heading, val)
-        return Utils.stringify(val)
-      }
-    }
-    return <ExpansionPanel
-      expanded={expanded} onChange={this.handleChange}>
-      <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
-        <Typography>{heading}</Typography>
-      </ExpansionPanelSummary>
-      <ExpansionPanelDetails>
-        <Typography component='pre'>
-           {details()}
-        </Typography>
-      </ExpansionPanelDetails>
-    </ExpansionPanel>
+    const {heading} = this.props
+    return <ExpandLite heading={heading} callBack={this.details} />
   }
 }
 Debug.propTypes = {
@@ -49,6 +34,37 @@ Debug.propTypes = {
 }
 Debug.defaultProps = {
   heading: 'Debug',
+}
+
+// Expanding panel that only calculates values when expanded
+class ExpandLite extends Component {
+  state = {
+    expanded: false,
+  }
+  handleChange = () => {
+    this.setState({expanded: !this.state.expanded})
+  }
+  details = () => {
+    if (this.state.expanded) {
+      console.log('rending', this.props.heading)
+      return this.props.callBack()
+    }
+  }
+  render() {
+    return <ExpansionPanel
+      expanded={this.state.expanded} onChange={this.handleChange}>
+      <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+        <Typography>{this.props.heading}</Typography>
+      </ExpansionPanelSummary>
+      <ExpansionPanelDetails>
+        {this.details()}
+      </ExpansionPanelDetails>
+    </ExpansionPanel>
+  }
+}
+ExpandLite.propTypes = {
+  heading: PropTypes.string.isRequired,
+  callBack: PropTypes.func.isRequired,
 }
 
 class MoodPie extends React.Component {
@@ -74,7 +90,7 @@ class MoodPie extends React.Component {
   }
 }
 MoodPie.propTypes = {
-  mood: PropTypes.array.isRequired,
+  mood: PropTypes.object.isRequired,
   total: PropTypes.number.isRequired,
   size: PropTypes.string
 }
@@ -82,6 +98,7 @@ MoodPie.defaultProps = {
   size: "2em"
 }
 
+// wip
 class Snack extends React.Component {
   state = {
     open: false,
@@ -141,6 +158,7 @@ Snack.propTypes = {
 }
 
 export {
+  ExpandLite,
   Debug,
   MoodPie,
   Snack,
