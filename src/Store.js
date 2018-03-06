@@ -37,32 +37,32 @@ export const actionCreators = {
 const testState = () => {
   const title = "Friends AGM"
   const members = Utils.allocateProxies([
-    {id: 2342, title: 'Abby', present: true, proxyTo: [122445, 250851]},
-    {id: 62345, title: 'Bill', present: true, proxyTo: [2342, 122445, 250851]},
-    {id: 97652, title: 'Charlie', present: true, proxyTo: [2342, 122445, 250851]},
-    {id: 122445, title: 'Doug', present: false, proxyTo: [2342, 250851]},
-    {id: 244085, title: 'Enzo', present: false, proxyTo: [2342, 122445, 250851]},
-    {id: 240851, title: 'Fill', present: false,},
-    {id: 240853, title: 'Gina', present: true, proxyTo: [2342, 122445, 250851]},
-    {id: 240854, title: 'Heather', present: true, proxyTo: [250851]},
+    {id: '2342', title: 'Abby', present: true, proxyTo: ['122445', '250851']},
+    {id: '62345', title: 'Bill', present: true, proxyTo: ['2342', '122445', '250851']},
+    {id: '97652', title: 'Charlie', present: true, proxyTo: ['2342', '122445', '250851']},
+    {id: '122445', title: 'Doug', present: false, proxyTo: ['2342', '250851']},
+    {id: '244085', title: 'Enzo', present: false, proxyTo: ['2342', '122445', '250851']},
+    {id: '240851', title: 'Fill', present: false,},
+    {id: '240853', title: 'Gina', present: true, proxyTo: ['2342', '122445', '250851']},
+    {id: '240854', title: 'Heather', present: true, proxyTo: ['250851']},
   ])
   const users = Utils.joinById([
-        {id: 2342, localStatus: 'active', },
-        {id: 97652, localStatus: 'active',},
-        {id: 122445, localStatus: 'connected', localOwner: true },
+        {id: '2342', localStatus: 'active', },
+        {id: '97652', localStatus: 'active',},
+        {id: '122445', localStatus: 'connected', localOwner: true },
         ], members)
   const items = [
     Utils.addId({ title: 'Treasurer\'s report',
       details: 'Update on financial position after recent election',
       mood: {
-        240851: {support: 1, love: 1, timeAllowance: 10},
-        240853: {support: 1, love: 1, timeAllowance: 10},
-        240854: {support: 1, love: 1, timeAllowance: 50},
+        '240851': {support: 1, love: 1, timeAllowance: 10},
+        '240853': {support: 1, love: 1, timeAllowance: 10},
+        '240854': {support: 1, love: 1, timeAllowance: 50},
       },
       motions: [Utils.addId({
         title: 'Accept report',
         details: 'That the treasurer\'s report be accepted',
-        movedBy: [62345], secondedBy: [244085]}),
+        movedBy: ['62345'], secondedBy: ['244085']}),
        ]
     }),
     Utils.addId({ title: 'Secretary\'s report',
@@ -70,7 +70,7 @@ const testState = () => {
         Utils.addId({
           title: 'Accept report',
           details: 'That the secretaries\'s report be accepted',
-          movedBy: [62345], secondedBy: [244085]}),
+          movedBy: ['62345'], secondedBy: ['244085']}),
         Utils.addId({
           title: 'Appoint assistant',
           details: 'That the Sam be appointed as assitant secretary',

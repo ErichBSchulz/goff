@@ -142,8 +142,8 @@ EnhancedTableToolbar.propTypes = {
 EnhancedTableToolbar = withStyles(toolbarStyles)(EnhancedTableToolbar)
 
 const styles = theme => ({
-  root: { width: '100%', marginTop: theme.spacing.unit * 3},
-  table: { minWidth: 800},
+  root: { width: '100%', marginTop: theme.spacing.unit * 0},
+  table: { minWidth: 400},
   tableWrapper: { overflowX: 'auto'},
 })
 

@@ -5,6 +5,7 @@ import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 import configureStore from './Store'
 import Forum from './ForumView'
 import Item from './ItemView'
+import MembersFull from './MembersFullView'
 import AppBar from './AppBarView'
 import Toolbox from './Toolbox'
 import Theme from './Theme'
@@ -32,17 +33,17 @@ class MyFirstGrid extends Component {
     var layout = [
       // {i: 'forum', x: 0, y: 0, w: 3, h: 2, static: true},
       {i: 'forum', x: 0, y: 1, w: 12, h: 10, minW: 3 },
-      {i: 'item', x: 0, y: 0, w: 12, h: 8, minW: 3},
-      {i: 'tools', x: 5, y: 2, w: 2, h: 2, minH: 2,},
-      {i: 'testing',x: 4, y: 5, w: 2, h: 1}
+      {i: 'item', x: 0, y: 0, w: 6, h: 8, minW: 3},
+      {i: 'members', x: 7, y: 0, w: 6, h: 3, minW: 1},
+      {i: 'testing',x: 4, y: 5, w: 12, h: 3}
     ];
     return (
       <ReactGridLayout
        className="appLayout"
        layout={layout}
-       cols={12}
-       rowHeight={30}
-       width={1200}
+       cols={24}
+       rowHeight={20}
+       width={1900}
        >
           <div key="forum">
             <Forum/>
@@ -50,10 +51,11 @@ class MyFirstGrid extends Component {
           <div key="item">
             <Item item={this.props.item} />
           </div>
-            <div key="tools">
-          <Toolbox / >
+          <div key="members">
+            <MembersFull item={this.props.item} />
           </div>
           <div key="testing">
+            <Toolbox / >
             <Snack/>
           </div>
       </ReactGridLayout>

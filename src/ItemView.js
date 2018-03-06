@@ -8,8 +8,8 @@ import { actionCreators  } from './Store'
 import Utils from './Utils'
 import { getActionButtons, participantCount } from './Meta'
 import ActionButtons from './ActionButtonView'
-import Card, { CardActions, CardContent } from 'material-ui/Card';
-import Typography from 'material-ui/Typography';
+import Card, { CardActions, CardContent } from 'material-ui/Card'
+import Typography from 'material-ui/Typography'
 
 class ItemRaw extends Component {
 
@@ -51,10 +51,8 @@ class ItemRaw extends Component {
       moodTally,
       moodSummary
       } = item
-      console.log('members', members)
     // needed as a denominator
     const participants = participantCount(forum) || 1000
-
 
     return (
       <div>

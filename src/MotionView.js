@@ -8,9 +8,9 @@ import { getActionButtons } from './Meta'
 import Mood from './MoodView'
 import Members from './MemberView'
 import ActionButtons from './ActionButtonView'
-import Card, { CardActions, CardContent } from 'material-ui/Card';
-import Typography from 'material-ui/Typography';
-import ReactGridLayout from 'react-grid-layout'
+import Card, { CardActions, CardContent } from 'material-ui/Card'
+import Typography from 'material-ui/Typography'
+import './MotionView.css'
 
 class MotionRaw extends Component {
 
@@ -43,47 +43,39 @@ class MotionRaw extends Component {
       participants,
       } = this.props
 
-    const layout = [
-      {i: 'motion', x: 0, y: 0, w: 5, h: 10 },
-      {i: 'moved', x: 5, y: 0, w: 1, h: 2},
-      {i: 'seconded', x: 5, y: 1, w: 1, h: 2},
-    ];
-
     return (
       <div>
         <Card>
           <CardContent>
-            <Typography variant={'title'} >
-              {motion.title}
-            </Typography>
 
-      <ReactGridLayout
-       className="moodLayout"
-       layout={layout}
-       cols={6}
-       rowHeight={30}
-       width={1200}
-       >
-          <div key="motion">
+
+        <div className="goff-motion-view-motion-container">
+          <div className="goff-motion-view-motion">
+            <Typography variant={'title'} >
+              Motion to: {motion.title}
+            </Typography>
             <Typography variant='body2' >
               Motion: {motion.details}
             </Typography>
           </div>
-          <div key="moved">
-            <Members
-              heading='Moved'
-              members={motion.movedBy}
-              index={index}
-              mode='plain' />
+          <div className="goff-motion-view-movers">
+            <div className="goff-motion-view-moved">
+              <Members
+                heading='Moved'
+                members={motion.movedBy}
+                index={index}
+                mode='plain' />
+            </div>
+            <div className="goff-motion-view-seconded">
+              <Members
+                heading='Seconded'
+                members={motion.secondedBy}
+                index={index}
+                mode='plain' />
+            </div>
           </div>
-          <div key="seconded">
-            <Members
-              heading='Seconded'
-              members={motion.secondedBy}
-              index={index}
-              mode='plain' />
-          </div>
-      </ReactGridLayout>
+        </div>
+
             <Mood
               participants={participants}
               index={index}

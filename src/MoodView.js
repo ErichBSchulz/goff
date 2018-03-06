@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { Debug, ExpandLite } from './Widgets'
 import Utils from './Utils'
-import Card, { CardContent } from 'material-ui/Card';
 import Typography from 'material-ui/Typography'
 import Members from './MemberView'
 
@@ -19,34 +18,36 @@ class Mood extends Component {
       support = [],
       love = [],
     } = tally
-    return <span>
-      {support[1] || 'none' } support
-      {inversePluralise(support[-1])}, {
-        support[-1]  || 'none'} oppose{inversePluralise(support[-1])}, {
-        love[1] || 'none'} like{inversePluralise(support[-1])} and {
-        love[-1] || 'none'} fear{inversePluralise(support[-1])}.
-      </span>
+    return (support[1] || 'none') + " support "
+      + inversePluralise(support[-1]) + ", "
+      + (support[-1] || 'none') + " oppose"
+      + inversePluralise(support[-1]) + ", "
+      + (love[1] || 'none') + " like"
+      + inversePluralise(support[-1]) + " and "
+      + (love[-1] || 'none') + " fear"
+      + inversePluralise(support[-1]) + "."
   }
 
   narateTime = (summary = {}) => {
     const {pluralise} = Utils
     const {timeAllowance} = summary
     return timeAllowance === undefined ? ''
-    : <span>{timeAllowance} minute{pluralise(timeAllowance)}</span>
+    : timeAllowance + "minute" + pluralise(timeAllowance)
   }
 
   narateTimeDistribution = (tally) => {
     const {timeAllowance = {}} = tally
     const {toList, pluralise} = Utils
     const times = Object.keys(timeAllowance)
-    return times.length === 0 ? ''
-      : <span>{
-         toList(
-           times.map(time =>
-             `${time} minute${pluralise(time)}
-             (${timeAllowance[time]}
-              ${pluralise(timeAllowance[time], 'person', 'people')})`)) + '.'}
-          </span>
+    const describeCount = time => (
+      time + " minute" + pluralise(time)
+      + " (" + timeAllowance[time] + " " +
+      pluralise(timeAllowance[time], 'person', 'people')
+      + ")"
+     )
+    return times.length === 0
+      ? ''
+      : toList(times.map(describeCount)) + '.'
   }
 
   callBack = () => {
@@ -58,32 +59,24 @@ class Mood extends Component {
       summary,
       } = this.props
     const cluster = Utils.cluster(mood)
-
-    const memberIds = Object.keys(index)
+    const memberCluster = (title, attibute, value) => {
+      const list = (cluster[attibute] || {})[value]
+      if (list) {
+        return (<div>
+           {title}: <Members members={list} index={index} mode='plain' />
+          </div>)
+      }
+      else {
+        return ''
+      }
+    }
 
     return (<div>
-      <Debug heading='Debug mood' val={{mood, tally, summary, cluster}}/>
-      <Card>
-        <CardContent>
-          <Typography variant="headline" component="h2">
-            More stuff
-          </Typography>
-          <Members
-            members={memberIds} index={index} />
-          <Members members={memberIds}
-            index={index}
-            mode='plain'
-            />
-          <Typography component="p">
-
-  MASH star and Cogsworth voice actor David Ogden Stiers dies aged 75
-  Updated about 4 hours ago
-  Actor David Ogden Stiers as the MASH character Major Charles Winchester
-  PHOTO: Stiers was best known for his role as Major Charles Winchester in the television series MASH. (Supplied: 20th Century Fox Televison)
-
-          </Typography>
-         </CardContent>
-      </Card>
+          {memberCluster('Love', 'love', '1')}
+          {memberCluster('Fear', 'love', '-1')}
+          {memberCluster('Support', 'support', '1')}
+          {memberCluster('Oppose', 'support', '-1')}
+        <Debug heading='Debug mood' val={{mood, tally, summary, cluster}}/>
         <Typography variant="body1" gutterBottom align="right">
           {participants} participants
         </Typography>
@@ -96,7 +89,8 @@ class Mood extends Component {
       summary,
       } = this.props
 
-    const heading = [<span>Mood:</span>, this.narateSupport(tally), this.narateTime(summary)]
+    const heading =
+      "Mood: " + this.narateSupport(tally) + " " + this.narateTime(summary)
     return (
       <div>
         <ExpandLite heading={heading} callBack={this.callBack} />

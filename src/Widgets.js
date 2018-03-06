@@ -11,9 +11,9 @@ import Snackbar from 'material-ui/Snackbar'
 import IconButton from 'material-ui/IconButton'
 import CloseIcon from 'material-ui-icons/Close'
 import Utils from './Utils'
-import Pie from './PieView';
+import Pie from './PieView'
 import {pieColors, //scaleColor
-  } from './Theme';
+  } from './Theme'
 
 class Debug extends Component {
   details = () => {
@@ -48,6 +48,9 @@ class ExpandLite extends Component {
     if (this.state.expanded) {
       console.log('rending', this.props.heading)
       return this.props.callBack()
+    }
+    else {
+      return ''
     }
   }
   render() {

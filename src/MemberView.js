@@ -1,12 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import Typography from 'material-ui/Typography'
-import ExpansionPanel, {
-  ExpansionPanelSummary,
-  ExpansionPanelDetails,
-} from 'material-ui/ExpansionPanel'
-import ExpandMoreIcon from 'material-ui-icons/ExpandMore'
-import Utils from './Utils'
 import Avatar from 'material-ui/Avatar';
 import Chip from 'material-ui/Chip';
 import PersonIcon from 'material-ui-icons/Person';
@@ -83,48 +77,5 @@ Members.defaultProps = {
   mode: 'proxy',
 }
 
-// full detailed breakdown
-// wip
-class MemberFull extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      expanded: false,
-    }
-  }
-  handleChange = () => {
-    this.setState({expanded: !this.state.expanded})
-  }
-  render() {
-    const {memberId, index} = this.props
-    const {expanded, heading} = this.state
-    const member = index[memberId]
-    const details = () => {
-      if (expanded) {
-        console.log('rendering', heading)
-        return Utils.stringify(member)
-      }
-    }
-    return <ExpansionPanel
-      expanded={expanded} onChange={this.handleChange}>
-      <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
-        <Typography>{heading}</Typography>
-      </ExpansionPanelSummary>
-      <ExpansionPanelDetails>
-        <Typography component='pre'>
-           {details()}
-        </Typography>
-      </ExpansionPanelDetails>
-    </ExpansionPanel>
-  }
-}
-MemberFull.propTypes = {
-  memberId: PropTypes.string.isRequired,
-  index: PropTypes.object.isRequired,
-}
-//MemberFull.defaultProps = {
-//  heading: 'Member',
-//}
-
 export default Members
-export { MemberFull, Member }
+export { Member }

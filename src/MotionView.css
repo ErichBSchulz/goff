@@ -1,0 +1,33 @@
+.goff-motion-view-motion-container {
+  display: flex;
+  flex: 1 1 100%;
+  flex-direction: row;
+#  background: black;
+}
+
+.goff-motion-view-motion {
+  order: 0;
+  flex: 8 1 auto;
+# background: red;
+
+}
+
+.goff-motion-view-movers {
+  order: 0;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+#   background: green;
+}
+
+.goff-motion-view-moved {
+# background: pink;
+
+}
+
+.goff-motion-view-seconded {
+# background: blue;
+
+}
+
+
