@@ -5,10 +5,8 @@ import Motion from './MotionView'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { actionCreators  } from './Store'
-import { Debug  } from './Widgets'
 import Utils from './Utils'
 import { getActionButtons, participantCount } from './Meta'
-import Members from './MemberView'
 import ActionButtons from './ActionButtonView'
 import Card, { CardActions, CardContent } from 'material-ui/Card';
 import Typography from 'material-ui/Typography';
@@ -47,7 +45,7 @@ class ItemRaw extends Component {
       id,
       title,
       details,
-      url,
+//      url,
       motions = [],
       mood,
       moodTally,
@@ -56,16 +54,7 @@ class ItemRaw extends Component {
       console.log('members', members)
     // needed as a denominator
     const participants = participantCount(forum) || 1000
-    const memberIds = Object.keys(members)
 
-    const temp = <div>
-                <Members
-                  members={memberIds} index={members} />
-                <Members members={memberIds}
-                  index={members}
-                  mode='plain'
-                  />
-                  </div>
 
     return (
       <div>

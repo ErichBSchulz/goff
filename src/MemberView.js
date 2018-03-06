@@ -9,7 +9,6 @@ import ExpandMoreIcon from 'material-ui-icons/ExpandMore'
 import Utils from './Utils'
 import Avatar from 'material-ui/Avatar';
 import Chip from 'material-ui/Chip';
-import Paper from 'material-ui/Paper';
 import PersonIcon from 'material-ui-icons/Person';
 import PersonOutlineIcon from 'material-ui-icons/PersonOutline';
 import GroupIcon from 'material-ui-icons/Group';
@@ -26,15 +25,14 @@ class Member extends Component {
   }
   render() {
     const {memberId, index, mode} = this.props
-      console.log('memberId, index, mode', memberId, index, mode)
+    const me = memberId.toString() // make a safe string for comparison
     const {expanded} = this.state
     const member = index[memberId]
     let label = member.title
-    console.log('label', label)
     const {votingForIndex} = member
     let proxies = []
     if (mode === 'proxy') {
-      proxies = votingForIndex.filter(mem => mem.id != memberId)
+      proxies = votingForIndex.filter(mem => mem.id.toString() !== me)
       // list out the proxies
       if (expanded) {
         label += proxies.length ? ` + (${proxies.map(mem => mem.title).join(', ')})` : ''
@@ -62,31 +60,17 @@ Member.propTypes = {
 }
 
 class Members extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      expanded: false,
-    }
-  }
-  onClick = () => {
-    this.setState({expanded: !this.state.expanded})
-  }
   render() {
     const {members, index, mode, heading} = this.props
-    const {expanded} = this.state
-
-    if (expanded) {
-      console.log('rendering member', members)
-    }
-
     return (
-      <Paper style={{padding: 5}} >
+      <div>
         <Typography variant="caption">
           {heading}
         </Typography>
         {members.map(id => <
         Member key={id} memberId={id} index={index} mode={mode} />)}
-      </Paper>)
+      </div>
+        )
   }
 }
 Members.propTypes = {

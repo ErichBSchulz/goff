@@ -4,6 +4,7 @@ import { Debug, ExpandLite } from './Widgets'
 import Utils from './Utils'
 import Card, { CardContent } from 'material-ui/Card';
 import Typography from 'material-ui/Typography'
+import Members from './MemberView'
 
 class Mood extends Component {
 
@@ -17,7 +18,6 @@ class Mood extends Component {
     const {
       support = [],
       love = [],
-      timeAllowance = {},
     } = tally
     return <span>
       {support[1] || 'none' } support
@@ -58,6 +58,9 @@ class Mood extends Component {
       summary,
       } = this.props
     const cluster = Utils.cluster(mood)
+
+    const memberIds = Object.keys(index)
+
     return (<div>
       <Debug heading='Debug mood' val={{mood, tally, summary, cluster}}/>
       <Card>
@@ -65,6 +68,12 @@ class Mood extends Component {
           <Typography variant="headline" component="h2">
             More stuff
           </Typography>
+          <Members
+            members={memberIds} index={index} />
+          <Members members={memberIds}
+            index={index}
+            mode='plain'
+            />
           <Typography component="p">
 
   MASH star and Cogsworth voice actor David Ogden Stiers dies aged 75
@@ -75,14 +84,15 @@ class Mood extends Component {
           </Typography>
          </CardContent>
       </Card>
+        <Typography variant="body1" gutterBottom align="right">
+          {participants} participants
+        </Typography>
       </div>)
   }
 
   render() {
     const {
-      mood,
       tally,
-      participants,
       summary,
       } = this.props
 
@@ -90,9 +100,6 @@ class Mood extends Component {
     return (
       <div>
         <ExpandLite heading={heading} callBack={this.callBack} />
-        <Typography variant="body1" gutterBottom align="right">
-          {participants} participants
-        </Typography>
       </div>)
   }
 }

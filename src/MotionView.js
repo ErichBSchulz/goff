@@ -3,16 +3,14 @@ import PropTypes from 'prop-types'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { actionCreators  } from './Store'
-import { Debug  } from './Widgets'
 import Utils from './Utils'
 import { getActionButtons } from './Meta'
 import Mood from './MoodView'
 import Members from './MemberView'
 import ActionButtons from './ActionButtonView'
-import Paper from 'material-ui/Paper';
-import Grid from 'material-ui/Grid';
 import Card, { CardActions, CardContent } from 'material-ui/Card';
 import Typography from 'material-ui/Typography';
+import ReactGridLayout from 'react-grid-layout'
 
 class MotionRaw extends Component {
 
@@ -45,6 +43,12 @@ class MotionRaw extends Component {
       participants,
       } = this.props
 
+    const layout = [
+      {i: 'motion', x: 0, y: 0, w: 5, h: 10 },
+      {i: 'moved', x: 5, y: 0, w: 1, h: 2},
+      {i: 'seconded', x: 5, y: 1, w: 1, h: 2},
+    ];
+
     return (
       <div>
         <Card>
@@ -53,33 +57,33 @@ class MotionRaw extends Component {
               {motion.title}
             </Typography>
 
-      <Grid container spacing={24}>
-        <Grid item xs>
-          <Paper >
+      <ReactGridLayout
+       className="moodLayout"
+       layout={layout}
+       cols={6}
+       rowHeight={30}
+       width={1200}
+       >
+          <div key="motion">
             <Typography variant='body2' >
               Motion: {motion.details}
             </Typography>
-          </Paper>
-        </Grid>
-        <Grid item xs={2}>
-          <Paper >
+          </div>
+          <div key="moved">
             <Members
               heading='Moved'
               members={motion.movedBy}
               index={index}
               mode='plain' />
-          </Paper>
-        </Grid>
-        <Grid item xs={2}>
-          <Paper >
+          </div>
+          <div key="seconded">
             <Members
               heading='Seconded'
               members={motion.secondedBy}
               index={index}
               mode='plain' />
-          </Paper>
-        </Grid>
-      </Grid>
+          </div>
+      </ReactGridLayout>
             <Mood
               participants={participants}
               index={index}
@@ -107,6 +111,7 @@ MotionRaw.propTypes = {
 MotionRaw.defaultProps = {
 //  mode: 'proxy',
 }
+
 
 // Returns a plain object, which is merged into component’s props
 // If not subscribing to store updates, pass null instead of function

@@ -28,21 +28,9 @@ class Clock extends React.Component {
     })
   }
 
-  upVote() { this.vote(1) }
-  downVote() { this.vote(-1) }
-
-  vote(n) {
-    this.setState(prevState => ({
-      votes: prevState.votes + n
-    }))
-  }
-
   render() {
     return (
         <h6>
-        -<button onClick={this.upVote}> +1 </button>
-        -<button onClick={this.downVote}> -1 </button>-
-        {this.state.votes} votes as at
         {this.state.date.toLocaleTimeString()}.
         </h6>
     )
